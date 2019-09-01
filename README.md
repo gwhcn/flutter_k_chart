@@ -1,6 +1,8 @@
 # flutter_k_chart
 
-A new Flutter package project.
+![image1](https://github.com/415593725/flutter_k_chart/blob/master/example/images/screenshots.png)
+![chart_imge](https://github.com/415593725/flutter_k_chart/blob/master/example/images/k_chart.2019-09-01%2010_19_56.gif)
+![depth_image](https://github.com/415593725/flutter_k_chart/blob/master/example/images/depth.2019-09-01%2010_21_31.gif)
 
 ## Getting Started
 
