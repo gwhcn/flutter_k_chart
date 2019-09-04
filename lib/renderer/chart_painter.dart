@@ -13,7 +13,6 @@ import 'vol_renderer.dart';
 
 class ChartPainter extends BaseChartPainter {
   BaseChartRenderer mMainRenderer, mVolRenderer, mSecondaryRenderer;
-  final int gridRows = 4, gridColumns = 4;
   StreamSink<InfoWindowEntity> sink;
   Color upColor, dnColor;
   Color ma5Color, ma10Color, ma30Color;
@@ -79,9 +78,9 @@ class ChartPainter extends BaseChartPainter {
 
   @override
   void drawGrid(canvas) {
-    mMainRenderer?.drawGrid(canvas, gridRows, gridColumns);
-    mVolRenderer?.drawGrid(canvas, gridRows, gridColumns);
-    mSecondaryRenderer?.drawGrid(canvas, gridRows, gridColumns);
+    mMainRenderer?.drawGrid(canvas, mGridRows, mGridColumns);
+    mVolRenderer?.drawGrid(canvas, mGridRows, mGridColumns);
+    mSecondaryRenderer?.drawGrid(canvas, mGridRows, mGridColumns);
   }
 
   @override
@@ -108,18 +107,18 @@ class ChartPainter extends BaseChartPainter {
   @override
   void drawRightText(canvas) {
     var textStyle = getTextStyle(ChartColors.defaultTextColor);
-    mMainRenderer?.drawRightText(canvas, textStyle, gridRows);
-    mVolRenderer?.drawRightText(canvas, textStyle, gridRows);
-    mSecondaryRenderer?.drawRightText(canvas, textStyle, gridRows);
+    mMainRenderer?.drawRightText(canvas, textStyle, mGridRows);
+    mVolRenderer?.drawRightText(canvas, textStyle, mGridRows);
+    mSecondaryRenderer?.drawRightText(canvas, textStyle, mGridRows);
   }
 
   @override
   void drawDate(Canvas canvas, Size size) {
-    double columnSpace = size.width / gridColumns;
+    double columnSpace = size.width / mGridColumns;
     double startX = getX(mStartIndex) - mPointWidth / 2;
     double stopX = getX(mStopIndex) + mPointWidth / 2;
     double y = 0.0;
-    for (var i = 0; i <= gridColumns; ++i) {
+    for (var i = 0; i <= mGridColumns; ++i) {
       double translateX = xToTranslateX(columnSpace * i);
       if (translateX >= startX && translateX <= stopX) {
         int index = indexOfTranslateX(translateX);
