@@ -7,6 +7,7 @@ import '../k_chart_widget.dart';
 import '../chart_style.dart' show ChartStyle;
 
 abstract class BaseChartPainter extends CustomPainter {
+  static double maxScrollX = 0.0;
   List<KLineEntity> datas;
   MainState mainState = MainState.MA;
   SecondaryState secondaryState = SecondaryState.MACD;
@@ -125,7 +126,7 @@ abstract class BaseChartPainter extends CustomPainter {
 
   calculateValue() {
     if (datas == null || datas.isEmpty) return;
-    scrollX = scrollX?.clamp(0.0, getMinTranslateX().abs()) ?? 0.0;
+    maxScrollX = getMinTranslateX().abs();
     setTranslateXFromScrollX(scrollX);
     mStartIndex = indexOfTranslateX(xToTranslateX(0));
     mStopIndex = indexOfTranslateX(xToTranslateX(mWidth));
@@ -250,21 +251,21 @@ abstract class BaseChartPainter extends CustomPainter {
   ///translateX转化为view中的x
   double translateXtoX(double translateX) => (translateX + mTranslateX) * scaleX;
 
-  @override
-  bool shouldRepaint(BaseChartPainter oldDelegate) {
-//    return true;
-    return oldDelegate.datas != datas ||
-        oldDelegate.datas?.length != datas?.length ||
-        oldDelegate.scaleX != scaleX ||
-        oldDelegate.scrollX != scrollX ||
-        oldDelegate.isLongPress != isLongPress ||
-        oldDelegate.selectX != selectX ||
-        oldDelegate.isLine != isLine ||
-        oldDelegate.mainState != mainState ||
-        oldDelegate.secondaryState != secondaryState;
-  }
-
   TextStyle getTextStyle(Color color) {
     return TextStyle(fontSize: 10.0, color: color);
+  }
+
+  @override
+  bool shouldRepaint(BaseChartPainter oldDelegate) {
+    return true;
+//    return oldDelegate.datas != datas ||
+//        oldDelegate.datas?.length != datas?.length ||
+//        oldDelegate.scaleX != scaleX ||
+//        oldDelegate.scrollX != scrollX ||
+//        oldDelegate.isLongPress != isLongPress ||
+//        oldDelegate.selectX != selectX ||
+//        oldDelegate.isLine != isLine ||
+//        oldDelegate.mainState != mainState ||
+//        oldDelegate.secondaryState != secondaryState;
   }
 }

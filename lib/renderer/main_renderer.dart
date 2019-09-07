@@ -87,7 +87,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 //      mLinePath.cubicTo(
 //          (lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2, getY(curPrice), curX, getY(curPrice));
 //    }
-
+    if (lastX == curX) lastX = 0;//起点位置填充
     mLinePath.moveTo(lastX, getY(lastPrice));
     mLinePath.cubicTo(
         (lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2, getY(curPrice), curX, getY(curPrice));

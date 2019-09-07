@@ -12,6 +12,7 @@ import 'secondary_renderer.dart';
 import 'vol_renderer.dart';
 
 class ChartPainter extends BaseChartPainter {
+  static get maxScrollX => BaseChartPainter.maxScrollX;
   BaseChartRenderer mMainRenderer, mVolRenderer, mSecondaryRenderer;
   StreamSink<InfoWindowEntity> sink;
   Color upColor, dnColor;

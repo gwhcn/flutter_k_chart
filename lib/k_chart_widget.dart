@@ -33,7 +33,6 @@ class _KChartWidgetState extends State<KChartWidget> {
     return mScaleX;
   }
 
-  Offset _lastOffset;
   double _lastScale = 1.0;
   bool isScale = false, isDrag = false, isLongPress = false;
 
@@ -64,20 +63,19 @@ class _KChartWidgetState extends State<KChartWidget> {
     return GestureDetector(
       onHorizontalDragDown: (details) {
         isDrag = true;
-        _lastOffset = details.globalPosition;
       },
       onHorizontalDragUpdate: (details) {
         if (isScale || isLongPress) return;
-        double offsetX = details.globalPosition.dx - _lastOffset.dx;
-        mScrollX = offsetX + mScrollX;
-        _lastOffset = details.globalPosition;
+        mScrollX = (details.primaryDelta / mScaleX + mScrollX).clamp(0.0, ChartPainter.maxScrollX);
         notifyChanged();
       },
       onHorizontalDragEnd: (DragEndDetails details) {
         isDrag = false;
       },
       onHorizontalDragCancel: () => isDrag = false,
-      onScaleStart: (_) => isScale = true,
+      onScaleStart: (_) {
+        isScale = true;
+      },
       onScaleUpdate: (details) {
         if (isDrag || isLongPress) return;
         mScaleX = (_lastScale * details.scale).clamp(0.5, 2.2);
