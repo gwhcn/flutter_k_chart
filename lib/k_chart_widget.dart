@@ -144,7 +144,7 @@ class _KChartWidgetState extends State<KChartWidget> {
             entity.high,
             entity.low,
             entity.close,
-            "${upDown > 0 ? "+" : ""}${NumberUtil.format(upDown)}",
+            "${upDown > 0 ? "+" : ""}${upDown.toStringAsFixed(2)}",
             "${upDownPercent > 0 ? "+" : ''}${upDownPercent.toStringAsFixed(2)}%",
             NumberUtil.format(entity.vol)
           ];

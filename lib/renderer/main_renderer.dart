@@ -36,12 +36,12 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     } else if (state == MainState.BOLL) {
       span = TextSpan(
         children: [
-          if (data.up != 0)
-            TextSpan(text: "MA5:${format(data.up)}    ", style: getTextStyle(ChartColors.ma10Color)),
           if (data.mb != 0)
-            TextSpan(text: "MA10:${format(data.mb)}    ", style: getTextStyle(ChartColors.ma5Color)),
+            TextSpan(text: "BOLL:${format(data.mb)}    ", style: getTextStyle(ChartColors.ma5Color)),
+          if (data.up != 0)
+            TextSpan(text: "UP:${format(data.up)}    ", style: getTextStyle(ChartColors.ma10Color)),
           if (data.dn != 0)
-            TextSpan(text: "MA30:${format(data.dn)}    ", style: getTextStyle(ChartColors.ma30Color)),
+            TextSpan(text: "LB:${format(data.dn)}    ", style: getTextStyle(ChartColors.ma30Color)),
         ],
       );
     }

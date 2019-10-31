@@ -7,7 +7,6 @@ import '../k_chart_widget.dart' show SecondaryState;
 import 'base_chart_renderer.dart';
 
 class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
-
   double mMACDWidth = ChartStyle.macdWidth;
   SecondaryState state;
 
@@ -22,15 +21,16 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
         drawMACD(curPoint, canvas, curX, lastPoint, lastX);
         break;
       case SecondaryState.KDJ:
-        drawLine(lastPoint.k, curPoint.k, canvas, lastX, curX, ChartColors.kColor);
-        drawLine(lastPoint.d, curPoint.d, canvas, lastX, curX, ChartColors.dColor);
-        drawLine(lastPoint.j, curPoint.j, canvas, lastX, curX, ChartColors.jColor);
+        if (lastPoint.k != 0) drawLine(lastPoint.k, curPoint.k, canvas, lastX, curX, ChartColors.kColor);
+        if (lastPoint.d != 0) drawLine(lastPoint.d, curPoint.d, canvas, lastX, curX, ChartColors.dColor);
+        if (lastPoint.j != 0) drawLine(lastPoint.j, curPoint.j, canvas, lastX, curX, ChartColors.jColor);
         break;
       case SecondaryState.RSI:
-        drawLine(lastPoint.rsi, curPoint.rsi, canvas, lastX, curX, ChartColors.rsiColor);
+        if (lastPoint.rsi != 0)
+          drawLine(lastPoint.rsi, curPoint.rsi, canvas, lastX, curX, ChartColors.rsiColor);
         break;
       case SecondaryState.WR:
-        drawLine(lastPoint.r, curPoint.r, canvas, lastX, curX, ChartColors.rsiColor);
+        if (lastPoint.r != 0) drawLine(lastPoint.r, curPoint.r, canvas, lastX, curX, ChartColors.rsiColor);
         break;
       default:
         break;

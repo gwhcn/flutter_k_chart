@@ -226,8 +226,8 @@ class DataUtil {
     }
   }
 
+  //WR(N) = 100 * [ HIGH(N)-C ] / [ HIGH(N)-LOW(N) ]
   static void calcWR(List<KLineEntity> dataList) {
-    double r;
     for (int i = 0; i < dataList.length; i++) {
       KLineEntity entity = dataList[i];
       int startIndex = i - 14;
@@ -241,13 +241,12 @@ class DataUtil {
         min14 = min(min14, dataList[index].low);
       }
       if (i < 13) {
-        entity.r = -10;
+        entity.r = 0;
       } else {
-        r = -100 * (max14 - dataList[i].close) / (max14 - min14);
-        if (r.isNaN) {
+        if ((max14 - min14) == 0) {
           entity.r = 0;
         } else {
-          entity.r = r;
+          entity.r = 100 * (max14 - dataList[i].close) / (max14 - min14);
         }
       }
     }

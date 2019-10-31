@@ -179,7 +179,7 @@ abstract class BaseChartPainter extends CustomPainter {
       mSecondaryMinValue = min(mSecondaryMinValue, min(item.macd, min(item.dif, item.dea)));
     } else if (secondaryState == SecondaryState.KDJ) {
       mSecondaryMaxValue = max(mSecondaryMaxValue, max(item.k, max(item.d, item.j)));
-      mSecondaryMinValue = min(mSecondaryMinValue, min(item.k, max(item.d, item.j)));
+      mSecondaryMinValue = min(mSecondaryMinValue, min(item.k, min(item.d, item.j)));
     } else if (secondaryState == SecondaryState.RSI) {
       mSecondaryMaxValue = max(mSecondaryMaxValue, item.rsi);
       mSecondaryMinValue = min(mSecondaryMinValue, item.rsi);
