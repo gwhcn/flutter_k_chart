@@ -193,7 +193,7 @@ class DataUtil {
       if (startIndex < 0) {
         startIndex = 0;
       }
-      double max14 = double.minPositive;
+      double max14 = -double.maxFinite;
       double min14 = double.maxFinite;
       for (int index = startIndex; index <= i; index++) {
         max14 = max(max14, dataList[index].high);
@@ -234,7 +234,7 @@ class DataUtil {
       if (startIndex < 0) {
         startIndex = 0;
       }
-      double max14 = double.minPositive;
+      double max14 = -double.maxFinite;
       double min14 = double.maxFinite;
       for (int index = startIndex; index <= i; index++) {
         max14 = max(max14, dataList[index].high);

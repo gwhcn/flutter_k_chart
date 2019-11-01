@@ -21,12 +21,12 @@ abstract class BaseChartPainter extends CustomPainter {
   double mTopPadding = 30.0, mBottomPadding = 20.0, mChildPadding = 25.0;
   final int mGridRows = 4, mGridColumns = 4;
   int mStartIndex = 0, mStopIndex = 0;
-  double mMainMaxValue = double.minPositive, mMainMinValue = double.maxFinite;
-  double mVolMaxValue = double.minPositive, mVolMinValue = double.maxFinite;
-  double mSecondaryMaxValue = double.minPositive, mSecondaryMinValue = double.maxFinite;
-  double mTranslateX = double.minPositive;
+  double mMainMaxValue = -double.maxFinite, mMainMinValue = double.maxFinite;
+  double mVolMaxValue = -double.maxFinite, mVolMinValue = double.maxFinite;
+  double mSecondaryMaxValue = -double.maxFinite, mSecondaryMinValue = double.maxFinite;
+  double mTranslateX = -double.maxFinite;
   int mMainMaxIndex = 0, mMainMinIndex = 0;
-  double mMainHighMaxValue = double.minPositive, mMainLowMinValue = double.maxFinite;
+  double mMainHighMaxValue = -double.maxFinite, mMainLowMinValue = double.maxFinite;
   int mItemCount = 0;
   double mDataLen = 0.0; //数据占屏幕总长度
   double mPointWidth = ChartStyle.pointWidth;
@@ -143,16 +143,27 @@ abstract class BaseChartPainter extends CustomPainter {
       mMainMaxValue = max(mMainMaxValue, item.close);
       mMainMinValue = min(mMainMinValue, item.close);
     } else {
-      double maxPrice, minPrice;
-      if (mainState == MainState.MA && item.MA30Price != 0) {
-        maxPrice = max(item.high, max(item.MA5Price, max(item.MA10Price, item.MA30Price)));
-        minPrice = min(item.low, min(item.MA5Price, min(item.MA10Price, item.MA30Price)));
+      double maxPrice = item.high, minPrice = item.low;
+      if (mainState == MainState.MA) {
+        if(item.MA5Price != 0){
+          maxPrice = max(maxPrice, item.MA5Price);
+          minPrice = min(minPrice, item.MA5Price);
+        }
+        if(item.MA10Price != 0){
+          maxPrice = max(maxPrice, item.MA10Price);
+          minPrice = min(minPrice, item.MA10Price);
+        }
+        if(item.MA20Price != 0){
+          maxPrice = max(maxPrice, item.MA20Price);
+          minPrice = min(minPrice, item.MA20Price);
+        }
+        if(item.MA30Price != 0){
+          maxPrice = max(maxPrice, item.MA30Price);
+          minPrice = min(minPrice, item.MA30Price);
+        }
       } else if (mainState == MainState.BOLL) {
         maxPrice = max(item.up, item.high);
         minPrice = min(item.dn, item.low);
-      } else {
-        maxPrice = item.high;
-        minPrice = item.low;
       }
       mMainMaxValue = max(mMainMaxValue, maxPrice);
       mMainMinValue = min(mMainMinValue, minPrice);

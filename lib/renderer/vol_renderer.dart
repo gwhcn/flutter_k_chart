@@ -15,7 +15,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   void drawChart(
       VolumeEntity lastPoint, VolumeEntity curPoint, double lastX, double curX, Size size, Canvas canvas) {
     double r = mVolWidth / 2;
-    double top = getVolY(curPoint.vol);
+    double top = getY(curPoint.vol);
     double bottom = chartRect.bottom;
     canvas.drawRect(Rect.fromLTRB(curX - r, top, curX + r, bottom),
         chartPaint..color = curPoint.close >= curPoint.open ? ChartColors.upColor : ChartColors.dnColor);
@@ -29,22 +29,19 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
     }
   }
 
-  double getVolY(double value) => (maxValue - value) * (chartRect.height / maxValue) + chartRect.top;
+  @override
+  double getY(double y){
+    if (maxValue == 0) return chartRect.bottom;
+    return (maxValue - y) * (chartRect.height / maxValue) + chartRect.top;
+  }
 
   @override
   void drawText(Canvas canvas, VolumeEntity data, double x) {
     TextSpan span = TextSpan(
       children: [
-        if (data.vol != 0)
-          TextSpan(text: "VOL:${NumberUtil.format(data.vol)}    ", style: getTextStyle(ChartColors.volColor)),
-        if (data.MA5Volume != 0)
-          TextSpan(
-              text: "MA5:${NumberUtil.format(data.MA5Volume)}    ",
-              style: getTextStyle(ChartColors.ma5Color)),
-        if (data.MA10Volume != 0)
-          TextSpan(
-              text: "MA10:${NumberUtil.format(data.MA10Volume)}    ",
-              style: getTextStyle(ChartColors.ma10Color)),
+        TextSpan(text: "VOL:${NumberUtil.format(data.vol)}    ", style: getTextStyle(ChartColors.volColor)),
+        TextSpan(text: "MA5:${NumberUtil.format(data.MA5Volume)}    ", style: getTextStyle(ChartColors.ma5Color)),
+        TextSpan(text: "MA10:${NumberUtil.format(data.MA10Volume)}    ", style: getTextStyle(ChartColors.ma10Color)),
       ],
     );
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);

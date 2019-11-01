@@ -15,7 +15,11 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   MainRenderer(Rect mainRect, double maxValue, double minValue, double topPadding, this.state, this.isLine)
       : super(chartRect: mainRect, maxValue: maxValue, minValue: minValue, topPadding: topPadding) {
     _contentRect = Rect.fromLTRB(chartRect.left, chartRect.top+_contentPadding, chartRect.right, chartRect.bottom-_contentPadding);
-    scaleY = _contentRect.height / (maxValue - minValue);
+    if (maxValue - minValue == 0) {
+      scaleY = 0;
+    } else {
+      scaleY = _contentRect.height / (maxValue - minValue);
+    }
   }
 
   @override
