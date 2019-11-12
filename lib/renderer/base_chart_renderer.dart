@@ -23,11 +23,11 @@ abstract class BaseChartRenderer<T> {
       @required this.maxValue,
       @required this.minValue,
       @required this.topPadding}) {
-    if (maxValue - minValue == 0) {
-      scaleY = 0;
-    } else {
-      scaleY = chartRect.height / (maxValue - minValue);
+    if (maxValue == minValue) {
+      maxValue += 0.5;
+      minValue -= 0.5;
     }
+    scaleY = chartRect.height / (maxValue - minValue);
   }
 
   double getY(double y) => (maxValue - y) * scaleY + chartRect.top;
