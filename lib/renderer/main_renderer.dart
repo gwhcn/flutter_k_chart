@@ -8,18 +8,21 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   double mCandleLineWidth = ChartStyle.candleLineWidth;
   MainState state;
   bool isLine;
+
   //绘制的内容区域
-  Rect _contentRect;
-  double _contentPadding = 5.0;
+  double _contentPadding = 12.0;
 
   MainRenderer(Rect mainRect, double maxValue, double minValue, double topPadding, this.state, this.isLine)
       : super(chartRect: mainRect, maxValue: maxValue, minValue: minValue, topPadding: topPadding) {
-    _contentRect = Rect.fromLTRB(chartRect.left, chartRect.top+_contentPadding, chartRect.right, chartRect.bottom-_contentPadding);
-    if (maxValue == minValue) {
-      maxValue += 0.5;
-      minValue -= 0.5;
+    var diff = maxValue - minValue; //计算差
+    var newScaleY = (chartRect.height - _contentPadding) / diff; //内容区域高度/差=新的比例
+    var newDiff = chartRect.height / newScaleY; //高/新比例=新的差
+    var value = (newDiff - diff) / 2; //新差-差/2=y轴需要扩大的值
+    if (newDiff > diff) {
+      this.scaleY = newScaleY;
+      this.maxValue += value;
+      this.minValue -= value;
     }
-    scaleY = _contentRect.height / (maxValue - minValue);
   }
 
   @override
@@ -168,15 +171,25 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   void drawRightText(canvas, textStyle, int gridRows) {
     double rowSpace = chartRect.height / gridRows;
     for (var i = 0; i <= gridRows; ++i) {
-      double value = (gridRows - i) * rowSpace / scaleY + minValue;
+      double position = 0;
+      if (i == 0) {
+        position = (gridRows - i) * rowSpace - _contentPadding / 2;
+      } else if (i == gridRows) {
+        position = (gridRows - i) * rowSpace + _contentPadding / 2;
+      } else {
+        position = (gridRows - i) * rowSpace;
+      }
+      var value = position / scaleY + minValue;
       TextSpan span = TextSpan(text: "${format(value)}", style: textStyle);
       TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
       tp.layout();
-      if (i == 0) {
-        tp.paint(canvas, Offset(chartRect.width - tp.width, topPadding));
+      double y;
+      if (i == 0||i == gridRows) {
+        y = getY(value) - tp.height / 2;
       } else {
-        tp.paint(canvas, Offset(chartRect.width - tp.width, rowSpace * i - tp.height + topPadding));
+        y = getY(value) - tp.height;
       }
+      tp.paint(canvas, Offset(chartRect.width - tp.width, y));
     }
   }
 
@@ -193,10 +206,5 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       canvas.drawLine(
           Offset(columnSpace * i, topPadding / 3), Offset(columnSpace * i, chartRect.bottom), gridPaint);
     }
-  }
-
-  @override
-  double getY(double y) {
-    return  (maxValue - y) * scaleY + _contentRect.top;
   }
 }
