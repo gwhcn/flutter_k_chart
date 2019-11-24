@@ -1,8 +1,8 @@
 name: flutter_k_chart
 description: A new Flutter package project.
-version: 0.0.1
-author:
-homepage:
+version: 0.1.0
+author: gwh <415593725@qq.com>
+homepage: https://github.com/gwh/flutter_k_chart
 
 environment:
   sdk: ">=2.2.2 <3.0.0"

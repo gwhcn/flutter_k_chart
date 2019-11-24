@@ -4,23 +4,34 @@ import '../entity/k_line_entity.dart';
 
 class DataUtil {
   static calculate(List<KLineEntity> dataList) {
-    calcMA(dataList);
-    calcBOLL(dataList);
-    calcVolumeMA(dataList);
-    calcKDJ(dataList);
-    calcMACD(dataList);
-    calcRSI(dataList);
-    calcWR(dataList);
+    if (dataList == null) return;
+    _calcMA(dataList);
+    _calcBOLL(dataList);
+    _calcVolumeMA(dataList);
+    _calcKDJ(dataList);
+    _calcMACD(dataList);
+    _calcRSI(dataList);
+    _calcWR(dataList);
   }
 
-  static calcMA(List<KLineEntity> dataList) {
+  static _calcMA(List<KLineEntity> dataList, [bool isLast = false]) {
     double ma5 = 0;
     double ma10 = 0;
     double ma20 = 0;
     double ma30 = 0;
 //    double ma60 = 0;
 
-    for (int i = 0; dataList != null && i < dataList.length; i++) {
+    int i = 0;
+    if (isLast && dataList.length > 1) {
+      i = dataList.length - 1;
+      var data = dataList[dataList.length - 2];
+      ma5 = data.MA5Price * 5;
+      ma10 = data.MA10Price * 10;
+      ma20 = data.MA20Price * 20;
+      ma30 = data.MA30Price * 30;
+//      ma60 = data.MA60Price * 60;
+    }
+    for (; i < dataList.length; i++) {
       KLineEntity entity = dataList[i];
       final closePrice = entity.close;
       ma5 += closePrice;
@@ -72,8 +83,12 @@ class DataUtil {
     }
   }
 
-  static void calcBOLL(List<KLineEntity> dataList) {
-    for (int i = 0; i < dataList.length; i++) {
+  static void _calcBOLL(List<KLineEntity> dataList, [bool isLast = false]) {
+    int i = 0;
+    if (isLast && dataList.length > 1) {
+      i = dataList.length - 1;
+    }
+    for (; i < dataList.length; i++) {
       KLineEntity entity = dataList[i];
       if (i < 19) {
         entity.mb = 0;
@@ -97,14 +112,25 @@ class DataUtil {
     }
   }
 
-  static void calcMACD(List<KLineEntity> dataList) {
+  static void _calcMACD(List<KLineEntity> dataList, [bool isLast = false]) {
     double ema12 = 0;
     double ema26 = 0;
     double dif = 0;
     double dea = 0;
     double macd = 0;
 
-    for (int i = 0; i < dataList.length; i++) {
+    int i = 0;
+    if (isLast && dataList.length > 1) {
+      i = dataList.length - 1;
+      var data = dataList[dataList.length - 2];
+      dif = data.dif;
+      dea = data.dea;
+      macd = data.macd;
+      ema12 = data.ema12;
+      ema26 = data.ema26;
+    }
+
+    for (; i < dataList.length; i++) {
       KLineEntity entity = dataList[i];
       final closePrice = entity.close;
       if (i == 0) {
@@ -125,14 +151,24 @@ class DataUtil {
       entity.dif = dif;
       entity.dea = dea;
       entity.macd = macd;
+      entity.ema12 = ema12;
+      entity.ema26 = ema26;
     }
   }
 
-  static void calcVolumeMA(List<KLineEntity> dataList) {
+  static void _calcVolumeMA(List<KLineEntity> dataList, [bool isLast = false]) {
     double volumeMa5 = 0;
     double volumeMa10 = 0;
 
-    for (int i = 0; i < dataList.length; i++) {
+    int i = 0;
+    if (isLast && dataList.length > 1) {
+      i = dataList.length - 1;
+      var data = dataList[dataList.length - 2];
+      volumeMa5 = data.MA5Volume * 5;
+      volumeMa10 = data.MA10Volume * 10;
+    }
+
+    for (; i < dataList.length; i++) {
       KLineEntity entry = dataList[i];
 
       volumeMa5 += entry.vol;
@@ -158,11 +194,21 @@ class DataUtil {
     }
   }
 
-  static void calcRSI(List<KLineEntity> dataList) {
+  static void _calcRSI(List<KLineEntity> dataList, [bool isLast = false]) {
     double rsi;
     double rsiABSEma = 0;
     double rsiMaxEma = 0;
-    for (int i = 0; i < dataList.length; i++) {
+
+    int i = 0;
+    if (isLast && dataList.length > 1) {
+      i = dataList.length - 1;
+      var data = dataList[dataList.length - 2];
+      rsi = data.rsi;
+      rsiABSEma = data.rsiABSEma;
+      rsiMaxEma = data.rsiMaxEma;
+    }
+
+    for (; i < dataList.length; i++) {
       KLineEntity entity = dataList[i];
       final double closePrice = entity.close;
       if (i == 0) {
@@ -180,13 +226,24 @@ class DataUtil {
       if (i < 13) rsi = 0;
       if (rsi.isNaN) rsi = 0;
       entity.rsi = rsi;
+      entity.rsiABSEma = rsiABSEma;
+      entity.rsiMaxEma = rsiMaxEma;
     }
   }
 
-  static void calcKDJ(List<KLineEntity> dataList) {
+  static void _calcKDJ(List<KLineEntity> dataList, [bool isLast = false]) {
     double k = 0;
     double d = 0;
-    for (int i = 0; i < dataList.length; i++) {
+
+    int i = 0;
+    if (isLast && dataList.length > 1) {
+      i = dataList.length - 1;
+      var data = dataList[dataList.length - 2];
+      k = data.k;
+      d = data.d;
+    }
+
+    for (; i < dataList.length; i++) {
       KLineEntity entity = dataList[i];
       final double closePrice = entity.close;
       int startIndex = i - 13;
@@ -227,8 +284,12 @@ class DataUtil {
   }
 
   //WR(N) = 100 * [ HIGH(N)-C ] / [ HIGH(N)-LOW(N) ]
-  static void calcWR(List<KLineEntity> dataList) {
-    for (int i = 0; i < dataList.length; i++) {
+  static void _calcWR(List<KLineEntity> dataList, [bool isLast = false]) {
+    int i = 0;
+    if (isLast && dataList.length > 1) {
+      i = dataList.length - 1;
+    }
+    for (; i < dataList.length; i++) {
       KLineEntity entity = dataList[i];
       int startIndex = i - 14;
       if (startIndex < 0) {
@@ -250,5 +311,30 @@ class DataUtil {
         }
       }
     }
+  }
+
+  //增量更新时计算最后一个数据
+  static addLastData(List<KLineEntity> dataList, KLineEntity data) {
+    if (dataList == null || data == null) return;
+    dataList.add(data);
+    _calcMA(dataList, true);
+    _calcBOLL(dataList, true);
+    _calcVolumeMA(dataList, true);
+    _calcKDJ(dataList, true);
+    _calcMACD(dataList, true);
+    _calcRSI(dataList, true);
+    _calcWR(dataList, true);
+  }
+
+  //更新最后一条数据
+  static updateLastData(List<KLineEntity> dataList) {
+    if (dataList == null) return;
+    _calcMA(dataList, true);
+    _calcBOLL(dataList, true);
+    _calcVolumeMA(dataList, true);
+    _calcKDJ(dataList, true);
+    _calcMACD(dataList, true);
+    _calcRSI(dataList, true);
+    _calcWR(dataList, true);
   }
 }

@@ -39,9 +39,9 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   void drawText(Canvas canvas, VolumeEntity data, double x) {
     TextSpan span = TextSpan(
       children: [
-        TextSpan(text: "VOL:${NumberUtil.format(data.vol)}    ", style: getTextStyle(ChartColors.volColor)),
-        TextSpan(text: "MA5:${NumberUtil.format(data.MA5Volume)}    ", style: getTextStyle(ChartColors.ma5Color)),
-        TextSpan(text: "MA10:${NumberUtil.format(data.MA10Volume)}    ", style: getTextStyle(ChartColors.ma10Color)),
+        TextSpan(text: "VOL:${NumberUtil.volFormat(data.vol)}    ", style: getTextStyle(ChartColors.volColor)),
+        TextSpan(text: "MA5:${NumberUtil.volFormat(data.MA5Volume)}    ", style: getTextStyle(ChartColors.ma5Color)),
+        TextSpan(text: "MA10:${NumberUtil.volFormat(data.MA10Volume)}    ", style: getTextStyle(ChartColors.ma10Color)),
       ],
     );
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
@@ -51,7 +51,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
 
   @override
   void drawRightText(canvas, textStyle, int gridRows) {
-    TextSpan span = TextSpan(text: "${NumberUtil.format(maxValue)}", style: textStyle);
+    TextSpan span = TextSpan(text: "${NumberUtil.volFormat(maxValue)}", style: textStyle);
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
     tp.layout();
     tp.paint(canvas, Offset(chartRect.width - tp.width, chartRect.top - topPadding));

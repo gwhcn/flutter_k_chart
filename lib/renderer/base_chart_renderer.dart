@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_k_chart/chart_style.dart';
+import 'package:flutter_k_chart/utils/number_util.dart';
 export '../chart_style.dart';
 
 abstract class BaseChartRenderer<T> {
@@ -7,16 +9,16 @@ abstract class BaseChartRenderer<T> {
   double scaleY;
   double topPadding;
   Rect chartRect;
-  Paint chartPaint = Paint()
+  final Paint chartPaint = Paint()
     ..isAntiAlias = true
     ..filterQuality = FilterQuality.high
     ..strokeWidth = 1.0
     ..color = Colors.red;
-  Paint gridPaint = Paint()
+  final Paint gridPaint = Paint()
     ..isAntiAlias = true
     ..filterQuality = FilterQuality.high
     ..strokeWidth = 0.5
-    ..color = Color(0xff4c5c74);
+    ..color = ChartColors.gridColor;
 
   BaseChartRenderer(
       {@required this.chartRect,
@@ -33,7 +35,7 @@ abstract class BaseChartRenderer<T> {
   double getY(double y) => (maxValue - y) * scaleY + chartRect.top;
 
   String format(double n) {
-    return n.toStringAsFixed(2);
+    return NumberUtil.format(n);
   }
 
   void drawGrid(Canvas canvas, int gridRows, int gridColumns);
@@ -51,6 +53,6 @@ abstract class BaseChartRenderer<T> {
   }
 
   TextStyle getTextStyle(Color color){
-    return TextStyle(fontSize: 10.0,color: color);
+    return TextStyle(fontSize: ChartStyle.defaultTextSize,color: color);
   }
 }

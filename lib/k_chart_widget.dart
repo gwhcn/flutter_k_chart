@@ -9,22 +9,27 @@ import 'utils/date_format_util.dart';
 import 'utils/number_util.dart';
 
 enum MainState { MA, BOLL, NONE }
+enum VolState { VOL, NONE }
 enum SecondaryState { MACD, KDJ, RSI, WR, NONE }
 
 class KChartWidget extends StatefulWidget {
-  List<KLineEntity> datas;
-  MainState mainState;
-  SecondaryState secondaryState;
-  bool isLine;
+  final List<KLineEntity> datas;
+  final MainState mainState;
+  final VolState volState;
+  final SecondaryState secondaryState;
+  final bool isLine;
 
-  KChartWidget(this.datas,
-      {this.mainState = MainState.MA, this.secondaryState = SecondaryState.MACD, this.isLine});
+  KChartWidget(this.datas, {this.mainState = MainState.MA,this.volState = VolState.VOL, this.secondaryState = SecondaryState.MACD, this.isLine,int fractionDigits = 2}){
+    NumberUtil.fractionDigits = fractionDigits;
+  }
 
   @override
   _KChartWidgetState createState() => _KChartWidgetState();
 }
 
-class _KChartWidgetState extends State<KChartWidget> {
+class _KChartWidgetState extends State<KChartWidget>  with SingleTickerProviderStateMixin{
+  AnimationController _controller;
+  Animation<double> _animation;
   double mScaleX = 1.0, mScrollX = 0.0, mSelectX = 0.0;
   StreamController<InfoWindowEntity> mInfoWindowStream;
   double mWidth = 0;
@@ -40,6 +45,8 @@ class _KChartWidgetState extends State<KChartWidget> {
   void initState() {
     super.initState();
     mInfoWindowStream = StreamController<InfoWindowEntity>();
+    _controller = AnimationController(duration: Duration(milliseconds: 850), vsync: this);
+    _animation = Tween(begin: 0.9, end: 0.1).animate(_controller)..addListener(() => setState(() {}));
   }
 
   @override
@@ -51,6 +58,7 @@ class _KChartWidgetState extends State<KChartWidget> {
   @override
   void dispose() {
     mInfoWindowStream?.close();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -114,9 +122,12 @@ class _KChartWidgetState extends State<KChartWidget> {
                 selectX: mSelectX,
                 isLongPass: isLongPress,
                 mainState: widget.mainState,
+                volState: widget.volState,
                 secondaryState: widget.secondaryState,
                 isLine: widget.isLine,
-                sink: mInfoWindowStream?.sink),
+                sink: mInfoWindowStream?.sink,
+                opacity: _animation.value,
+                controller: _controller),
           ),
           _buildInfoDialog()
         ],
@@ -140,28 +151,26 @@ class _KChartWidgetState extends State<KChartWidget> {
           double upDownPercent = upDown / entity.open * 100;
           infos = [
             getDate(entity.id),
-            entity.open,
-            entity.high,
-            entity.low,
-            entity.close,
-            "${upDown > 0 ? "+" : ""}${upDown.toStringAsFixed(2)}",
+            NumberUtil.format(entity.open),
+            NumberUtil.format(entity.high),
+            NumberUtil.format(entity.low),
+            NumberUtil.format(entity.close),
+            "${upDown > 0 ? "+" : ""}${NumberUtil.format(upDown)}",
             "${upDownPercent > 0 ? "+" : ''}${upDownPercent.toStringAsFixed(2)}%",
-            NumberUtil.format(entity.vol)
+            NumberUtil.volFormat(entity.vol)
           ];
-          return Container(
-            margin: EdgeInsets.only(left: snapshot.data.isLeft ? 4 : mWidth - mWidth / 3 - 4, top: 25),
-            width: mWidth / 3,
-            decoration: BoxDecoration(
-                color: ChartColors.selectFillColor,
-                border: Border.all(color: ChartColors.selectBorderColor, width: 0.5)),
-            child: ListView.builder(
-              padding: EdgeInsets.all(4),
-              itemCount: infoNames.length,
-              itemExtent: 14.0,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return _buildItem(infos[index].toString(), infoNames[index]);
-              },
+          return Align(
+            alignment: snapshot.data.isLeft ? Alignment.topLeft : Alignment.topRight,
+            child: Container(
+              margin: EdgeInsets.only(left: 10, right: 10, top: 25),
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+              decoration: BoxDecoration(
+                  color: ChartColors.markerBgColor,
+                  border: Border.all(color: ChartColors.markerBorderColor, width: 0.5)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(infoNames.length, (i) => _buildItem(infos[i].toString(), infoNames[i])),
+              ),
             ),
           );
         });
@@ -175,18 +184,22 @@ class _KChartWidgetState extends State<KChartWidget> {
       color = Colors.red;
     else
       color = Colors.white;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Expanded(child: Text("$infoName", style: const TextStyle(color: Colors.white, fontSize: 10.0))),
-        Text(info, style: TextStyle(color: color, fontSize: 10.0)),
-      ],
+    return Container(
+      constraints: BoxConstraints(minWidth: 95, maxWidth: 110, maxHeight: 14.0, minHeight: 14.0),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Text("$infoName", style: TextStyle(color: Colors.white, fontSize: ChartStyle.defaultTextSize)),
+          SizedBox(width: 5),
+          Text(info, style: TextStyle(color: color, fontSize: ChartStyle.defaultTextSize)),
+        ],
+      ),
     );
   }
 
   String getDate(int date) {
-    return dateFormat(
-        DateTime.fromMillisecondsSinceEpoch(date * 1000), [yy, '-', mm, '-', dd, ' ', HH, ':', nn]);
+    return dateFormat(DateTime.fromMillisecondsSinceEpoch(date * 1000), [yy, '-', mm, '-', dd, ' ', HH, ':', nn]);
   }
 }

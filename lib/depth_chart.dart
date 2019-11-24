@@ -5,7 +5,7 @@ import 'chart_style.dart';
 import 'entity/depth_entity.dart';
 
 class DepthChart extends StatefulWidget {
-  List<DepthEntity> bids, asks;
+  final List<DepthEntity> bids, asks;
 
   DepthChart(this.bids, this.asks);
 
@@ -210,10 +210,10 @@ class DepthChartPainter extends CustomPainter {
 
   Paint selectPaint = Paint()
     ..isAntiAlias = true
-    ..color = ChartColors.selectFillColor;
+    ..color = ChartColors.markerBgColor;
   Paint selectBorderPaint = Paint()
     ..isAntiAlias = true
-    ..color = ChartColors.selectBorderColor
+    ..color = ChartColors.markerBorderColor
     ..style = PaintingStyle.stroke
     ..strokeWidth = 0.5;
 

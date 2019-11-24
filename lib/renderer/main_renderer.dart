@@ -9,7 +9,6 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   MainState state;
   bool isLine;
 
-  //绘制的内容区域
   double _contentPadding = 12.0;
 
   MainRenderer(Rect mainRect, double maxValue, double minValue, double topPadding, this.state, this.isLine)
@@ -104,7 +103,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       tileMode: TileMode.clamp,
-      colors: [ChartColors.lineFillColor, Colors.transparent],
+      colors: ChartColors.kLineShadowColor,
     ).createShader(Rect.fromLTRB(chartRect.left, chartRect.top, chartRect.right, chartRect.bottom));
     mLineFillPaint..shader = mLineFillShader;
 

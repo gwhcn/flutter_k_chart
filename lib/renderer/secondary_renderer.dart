@@ -63,7 +63,7 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
     switch (state) {
       case SecondaryState.MACD:
         children = [
-          TextSpan(text: "MACD(12,26,9)    ", style: getTextStyle(ChartColors.defaultTextColor)),
+          TextSpan(text: "MACD(12,26,9)    ", style: getTextStyle(ChartColors.yAxisTextColor)),
           if (data.macd != 0)
             TextSpan(text: "MACD:${format(data.macd)}    ", style: getTextStyle(ChartColors.macdColor)),
           if (data.dif != 0)
@@ -74,7 +74,7 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
         break;
       case SecondaryState.KDJ:
         children = [
-          TextSpan(text: "KDJ(14,1,3)    ", style: getTextStyle(ChartColors.defaultTextColor)),
+          TextSpan(text: "KDJ(14,1,3)    ", style: getTextStyle(ChartColors.yAxisTextColor)),
           if (data.macd != 0)
             TextSpan(text: "K:${format(data.k)}    ", style: getTextStyle(ChartColors.kColor)),
           if (data.dif != 0)

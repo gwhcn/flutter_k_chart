@@ -6,4 +6,6 @@ mixin MACDEntity on KDJEntity, RSIEntity, WREntity {
   double dea;
   double dif;
   double macd;
+  double ema12;
+  double ema26;
 }

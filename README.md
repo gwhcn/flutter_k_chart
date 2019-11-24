@@ -1,18 +1,64 @@
 # flutter_k_chart
 
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](/LICENSE)
+
+## 介绍
+一个仿火币的flutter图表库包含深度图，支持各种指标及放大缩小、平移等操作
+
+Demo v0.1.0：[下载 APK](https://github.com/415593725/flutter_k_chart/blob/master/k_chart.apk)
+
+## 演示
 ![image1](https://github.com/415593725/flutter_k_chart/blob/master/example/images/screenshots.png)
 ![chart_imge](https://github.com/415593725/flutter_k_chart/blob/master/example/images/k_chart.2019-09-01%2010_19_56.gif)
 ![depth_image](https://github.com/415593725/flutter_k_chart/blob/master/example/images/depth.2019-09-01%2010_21_31.gif)
 
-火币的接口可能需要翻墙
+## 简单用例
+#### 1.在 pubspec.yaml 中添加依赖
+本项目数据来自火币openApi，火币的接口可能需要翻墙，接口失败后会加载本地json
+由于项目没有很好的封装，建议使用本地方式使用
+```yaml
+//本地导入方式
+dependencies:
+  flutter_k_chart:
+    path: 项目路径
+```
 
-## Getting Started
+#### 2.在布局文件中添加
+```dart
+import 'package:flutter_k_chart/flutter_k_chart.dart';
+....
+Container(
+  height: 450,
+  width: double.infinity,
+  child: KChartWidget(
+    datas,//数据
+    isLine: isLine,//是否显示折线图
+    mainState: _mainState,//控制主视图指标线
+    secondaryState: _secondaryState,//控制副视图指标线
+    volState: VolState.VOL,//控制成交量指标线
+    fractionDigits: 4,//保留小数位数
+  ),
+ )
+ 
+ //深度图使用
+ Container(
+   height: 230,
+   width: double.infinity,
+   child: DepthChart(_bids, _asks),
+ )         
+```
+### 3.修改样式
+可在chart_style.dart里面修改图表样式
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+#### 4.数据处理
+```dart
+//接口获取数据后，计算数据
+DataUtil.calculate(datas);
+//更新最后一条数据
+DataUtil.updateLastData(datas);
+//添加数据
+DataUtil.addLastData(datas,kLineEntity);
+```
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+##问题
+使用中如果有问题可以加QQ群：114563912

@@ -2,6 +2,7 @@ import 'dart:math';
 export 'package:flutter/material.dart' show Color, required, TextStyle, Rect, Canvas, Size, CustomPainter;
 import 'package:flutter/material.dart' show Color, required, TextStyle, Rect, Canvas, Size, CustomPainter;
 import 'package:flutter_k_chart/utils/date_format_util.dart';
+import 'package:flutter_k_chart/utils/number_util.dart';
 import '../entity/k_line_entity.dart';
 import '../k_chart_widget.dart';
 import '../chart_style.dart' show ChartStyle;
@@ -10,7 +11,9 @@ abstract class BaseChartPainter extends CustomPainter {
   static double maxScrollX = 0.0;
   List<KLineEntity> datas;
   MainState mainState = MainState.MA;
+  VolState volState = VolState.VOL;
   SecondaryState secondaryState = SecondaryState.MACD;
+
   double scaleX = 1.0, scrollX = 0.0, selectX;
   bool isLongPress = false;
   bool isLine = false;
@@ -18,8 +21,7 @@ abstract class BaseChartPainter extends CustomPainter {
   //3块区域大小与位置
   Rect mMainRect, mVolRect, mSecondaryRect;
   double mDisplayHeight, mWidth;
-  double mTopPadding = 30.0, mBottomPadding = 20.0, mChildPadding = 25.0;
-  final int mGridRows = 4, mGridColumns = 4;
+
   int mStartIndex = 0, mStopIndex = 0;
   double mMainMaxValue = -double.maxFinite, mMainMinValue = double.maxFinite;
   double mVolMaxValue = -double.maxFinite, mVolMinValue = double.maxFinite;
@@ -31,6 +33,7 @@ abstract class BaseChartPainter extends CustomPainter {
   double mDataLen = 0.0; //数据占屏幕总长度
   double mPointWidth = ChartStyle.pointWidth;
   List<String> mFormats = [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn]; //格式化时间
+  double mMarginRight = 0.0; //k线右边空出来的距离
 
   BaseChartPainter(
       {@required this.datas,
@@ -39,6 +42,7 @@ abstract class BaseChartPainter extends CustomPainter {
       @required this.isLongPress,
       @required this.selectX,
       this.mainState,
+      this.volState,
       this.secondaryState,
       this.isLine}) {
     mItemCount = datas?.length ?? 0;
@@ -65,8 +69,9 @@ abstract class BaseChartPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    mDisplayHeight = size.height - mTopPadding - mBottomPadding;
+    mDisplayHeight = size.height - ChartStyle.topPadding - ChartStyle.bottomDateHigh;
     mWidth = size.width;
+    mMarginRight = (mWidth / ChartStyle.gridColumns - mPointWidth) / scaleX;
     initRect(size);
     calculateValue();
     initChartRenderer();
@@ -78,6 +83,7 @@ abstract class BaseChartPainter extends CustomPainter {
     if (datas != null && datas.isNotEmpty) {
       drawChart(canvas, size);
       drawRightText(canvas);
+      drawRealTimePrice(canvas, size);
       drawDate(canvas, size);
       if (isLongPress == true) drawCrossLineText(canvas, size);
       drawText(canvas, datas?.last, 5);
@@ -113,15 +119,22 @@ abstract class BaseChartPainter extends CustomPainter {
   void drawCrossLineText(Canvas canvas, Size size);
 
   void initRect(Size size) {
-    double mainHeight = secondaryState != SecondaryState.NONE ? mDisplayHeight * 0.6 : mDisplayHeight * 0.8;
+    double mainHeight = mDisplayHeight * 0.6;
     double volHeight = mDisplayHeight * 0.2;
     double secondaryHeight = mDisplayHeight * 0.2;
-    mMainRect = Rect.fromLTRB(0, mTopPadding, mWidth, mTopPadding + mainHeight);
-    mVolRect = Rect.fromLTRB(0, mMainRect.bottom + mChildPadding, mWidth, mMainRect.bottom + volHeight);
-    //secondaryState == SecondaryState.NONE隐藏副视图
-    if (secondaryState != SecondaryState.NONE)
-      mSecondaryRect =
-          Rect.fromLTRB(0, mVolRect.bottom + mChildPadding, mWidth, mVolRect.bottom + secondaryHeight);
+    if (volState == VolState.NONE && secondaryState == SecondaryState.NONE) {
+      mainHeight = mDisplayHeight;
+    } else if (volState == VolState.NONE || secondaryState == SecondaryState.NONE) {
+      mainHeight = mDisplayHeight * 0.8;
+    }
+    mMainRect = Rect.fromLTRB(0, ChartStyle.topPadding, mWidth, ChartStyle.topPadding + mainHeight);
+    if(volState != VolState.NONE){
+      mVolRect = Rect.fromLTRB(0, mMainRect.bottom + ChartStyle.childPadding, mWidth, mMainRect.bottom + volHeight);
+    }
+    if (secondaryState != SecondaryState.NONE){
+      mSecondaryRect = Rect.fromLTRB(0, (mVolRect?.bottom??mMainRect.bottom )+ ChartStyle.childPadding, mWidth, (mVolRect?.bottom??mMainRect.bottom)  + secondaryHeight);
+    }
+
   }
 
   calculateValue() {
@@ -162,8 +175,12 @@ abstract class BaseChartPainter extends CustomPainter {
           minPrice = min(minPrice, item.MA30Price);
         }
       } else if (mainState == MainState.BOLL) {
-        maxPrice = max(item.up, item.high);
-        minPrice = min(item.dn, item.low);
+        if(item.up!=0){
+          maxPrice = max(item.up, item.high);
+        }
+        if(item.dn!=0){
+          minPrice = min(item.dn, item.low);
+        }
       }
       mMainMaxValue = max(mMainMaxValue, maxPrice);
       mMainMinValue = min(mMainMinValue, minPrice);
@@ -243,7 +260,22 @@ abstract class BaseChartPainter extends CustomPainter {
 
   ///获取平移的最小值
   double getMinTranslateX() {
+//    var x = -mDataLen + mWidth / scaleX - mPointWidth / 2;
     var x = -mDataLen + mWidth / scaleX - mPointWidth / 2;
+    x = x >= 0 ? 0.0 : x;
+    //数据不足一屏
+    if (x >= 0) {
+      if (mWidth/scaleX - getX(datas.length) < mMarginRight) {
+        //数据填充后剩余空间比mMarginRight小，求出差。x-=差
+        x -= mMarginRight - mWidth/scaleX + getX(datas.length);
+      } else {
+        //数据填充后剩余空间比Right大
+        mMarginRight = mWidth/scaleX - getX(datas.length);
+      }
+    } else if (x < 0) {
+      //数据超过一屏
+      x -= mMarginRight;
+    }
     return x >= 0 ? 0.0 : x;
   }
 
@@ -263,7 +295,13 @@ abstract class BaseChartPainter extends CustomPainter {
   double translateXtoX(double translateX) => (translateX + mTranslateX) * scaleX;
 
   TextStyle getTextStyle(Color color) {
-    return TextStyle(fontSize: 10.0, color: color);
+    return TextStyle(fontSize: ChartStyle.defaultTextSize, color: color);
+  }
+
+  void drawRealTimePrice(Canvas canvas, Size size);
+
+  String format(double n) {
+    return NumberUtil.format(n);
   }
 
   @override

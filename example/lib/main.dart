@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -66,7 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     amount = 0.0;
     asks?.sort((left, right) => left.price.compareTo(right.price));
-    //倒序循环 //累加买入委托量
+    //循环 //累加买入委托量
     asks?.forEach((item) {
       amount += item.amount;
       item.amount = amount;
@@ -91,14 +92,13 @@ class _MyHomePageState extends State<MyHomePage> {
                 isLine: isLine,
                 mainState: _mainState,
                 secondaryState: _secondaryState,
+                volState: VolState.VOL,
+                fractionDigits: 4,
               ),
             ),
             if (showLoading)
               Container(
-                  width: double.infinity,
-                  height: 450,
-                  alignment: Alignment.center,
-                  child: CircularProgressIndicator()),
+                  width: double.infinity, height: 450, alignment: Alignment.center, child: CircularProgressIndicator()),
           ]),
           buildButtons(),
           Container(
@@ -125,6 +125,23 @@ class _MyHomePageState extends State<MyHomePage> {
         button("RSI", onPressed: () => _secondaryState = SecondaryState.RSI),
         button("WR", onPressed: () => _secondaryState = SecondaryState.WR),
         button("隐藏副视图", onPressed: () => _secondaryState = SecondaryState.NONE),
+        button("update", onPressed: (){
+          //更新最后一条数据
+          datas.last.close += (Random().nextInt(100)-50).toDouble();
+          datas.last.high=max(datas.last.high,datas.last.close );
+          datas.last.low=min(datas.last.low,datas.last.close );
+          DataUtil.updateLastData(datas);
+        }),
+        button("addData", onPressed: () {
+          //拷贝一个对象，修改数据
+          var kLineEntity = KLineEntity.fromJson(datas.last.toJson());
+          kLineEntity.id += 60*60*24;
+          kLineEntity.open = kLineEntity.close;
+          kLineEntity.close += (Random().nextInt(100)-50).toDouble();
+          datas.last.high=max(datas.last.high,datas.last.close );
+          datas.last.low=min(datas.last.low,datas.last.close );
+          DataUtil.addLastData(datas,kLineEntity);
+        }),
       ],
     );
   }
@@ -141,31 +158,32 @@ class _MyHomePageState extends State<MyHomePage> {
         color: Colors.blue);
   }
 
-  void getData(String period) {
-    Future<String> future = getIPAddress('$period');
-    future.then((result) {
+  void getData(String period) async {
+    String result;
+    try {
+      result = await getIPAddress('$period');
+    } catch (e) {
+      print('获取数据失败,获取本地数据');
+      result = await rootBundle.loadString('assets/kline.json');
+    }finally{
       Map parseJson = json.decode(result);
       List list = parseJson['data'];
       datas = list.map((item) => KLineEntity.fromJson(item)).toList().reversed.toList().cast<KLineEntity>();
       DataUtil.calculate(datas);
       showLoading = false;
       setState(() {});
-    }).catchError((_) {
-      showLoading = false;
-      setState(() {});
-      print('获取数据失败');
-    });
+    }
   }
 
   Future<String> getIPAddress(String period) async {
-    var url =
-        'https://api.huobi.br.com/market/history/kline?period=${period ?? '1day'}&size=300&symbol=btcusdt';
+    //火币api，需要翻墙
+    var url = 'https://api.huobi.br.com/market/history/kline?period=${period ?? '1day'}&size=300&symbol=btcusdt';
     String result;
-    var response = await http.get(url);
+    var response = await http.get(url).timeout(Duration(seconds: 7));
     if (response.statusCode == 200) {
       result = response.body;
     } else {
-      print('Failed getting IP address');
+      return Future.error("获取失败");
     }
     return result;
   }
