@@ -8,14 +8,13 @@
 Demo v0.1.0：[下载 APK](https://github.com/415593725/flutter_k_chart/blob/master/k_chart.apk)
 
 ## 演示
-![image1](https://github.com/415593725/flutter_k_chart/blob/master/example/images/screenshots.png)
 ![chart_imge](https://github.com/415593725/flutter_k_chart/blob/master/example/images/k_chart.2019-09-01%202010_19_56.gif)
 ![depth_image](https://github.com/415593725/flutter_k_chart/blob/master/example/images/depth.2019-09-01%202010_21_31.gif)
+![image1](https://github.com/415593725/flutter_k_chart/blob/master/example/images/screenshots.png)
 
 ## 简单用例
 #### 1.在 pubspec.yaml 中添加依赖
-本项目数据来自火币openApi，火币的接口可能需要翻墙，接口失败后会加载本地json
-由于项目没有很好的封装，建议使用本地方式使用
+本项目数据来自火币openApi，火币的接口可能需要翻墙，接口失败后会加载本地json。由于项目没有很好的封装，建议使用本地方式使用
 ```yaml
 //本地导入方式
 dependencies:
