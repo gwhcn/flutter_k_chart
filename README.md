@@ -9,8 +9,8 @@ Demo v0.1.0：[下载 APK](https://github.com/415593725/flutter_k_chart/blob/mas
 
 ## 演示
 ![image1](https://github.com/415593725/flutter_k_chart/blob/master/example/images/screenshots.png)
-![chart_imge](https://github.com/415593725/flutter_k_chart/blob/master/example/images/k_chart.2019-09-01%2010_19_56.gif)
-![depth_image](https://github.com/415593725/flutter_k_chart/blob/master/example/images/depth.2019-09-01%2010_21_31.gif)
+![chart_imge](https://github.com/415593725/flutter_k_chart/blob/master/example/images/k_chart.2019-09-01%202010_19_56.gif)
+![depth_image](https://github.com/415593725/flutter_k_chart/blob/master/example/images/depth.2019-09-01%202010_21_31.gif)
 
 ## 简单用例
 #### 1.在 pubspec.yaml 中添加依赖
@@ -60,5 +60,5 @@ DataUtil.updateLastData(datas);
 DataUtil.addLastData(datas,kLineEntity);
 ```
 
-##问题
+## 问题
 使用中如果有问题可以加QQ群：114563912
