@@ -125,23 +125,41 @@ class _MyHomePageState extends State<MyHomePage> {
         button("RSI", onPressed: () => _secondaryState = SecondaryState.RSI),
         button("WR", onPressed: () => _secondaryState = SecondaryState.WR),
         button("隐藏副视图", onPressed: () => _secondaryState = SecondaryState.NONE),
-        button("update", onPressed: (){
+        button("update", onPressed: () {
           //更新最后一条数据
-          datas.last.close += (Random().nextInt(100)-50).toDouble();
-          datas.last.high=max(datas.last.high,datas.last.close );
-          datas.last.low=min(datas.last.low,datas.last.close );
+          datas.last.close += (Random().nextInt(100) - 50).toDouble();
+          datas.last.high = max(datas.last.high, datas.last.close);
+          datas.last.low = min(datas.last.low, datas.last.close);
           DataUtil.updateLastData(datas);
         }),
         button("addData", onPressed: () {
           //拷贝一个对象，修改数据
           var kLineEntity = KLineEntity.fromJson(datas.last.toJson());
-          kLineEntity.id += 60*60*24;
+          kLineEntity.id += 60 * 60 * 24;
           kLineEntity.open = kLineEntity.close;
-          kLineEntity.close += (Random().nextInt(100)-50).toDouble();
-          datas.last.high=max(datas.last.high,datas.last.close );
-          datas.last.low=min(datas.last.low,datas.last.close );
-          DataUtil.addLastData(datas,kLineEntity);
+          kLineEntity.close += (Random().nextInt(100) - 50).toDouble();
+          datas.last.high = max(datas.last.high, datas.last.close);
+          datas.last.low = min(datas.last.low, datas.last.close);
+          DataUtil.addLastData(datas, kLineEntity);
         }),
+        button("1month", onPressed: () async {
+//              showLoading = true;
+//              setState(() {});
+              //getData('1mon');
+              String result = await rootBundle.loadString('assets/kmon.json');
+              Map parseJson = json.decode(result);
+              List list = parseJson['data'];
+              datas = list.map((item) => KLineEntity.fromJson(item)).toList().reversed.toList().cast<KLineEntity>();
+              DataUtil.calculate(datas);
+        }),
+        FlatButton(
+            onPressed: (){
+              showLoading = true;
+              setState(() {});
+              getData('1day');
+            },
+            child: Text("1day"),
+            color: Colors.blue),
       ],
     );
   }
@@ -165,7 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } catch (e) {
       print('获取数据失败,获取本地数据');
       result = await rootBundle.loadString('assets/kline.json');
-    }finally{
+    } finally {
       Map parseJson = json.decode(result);
       List list = parseJson['data'];
       datas = list.map((item) => KLineEntity.fromJson(item)).toList().reversed.toList().cast<KLineEntity>();

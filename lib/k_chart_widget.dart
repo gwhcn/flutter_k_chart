@@ -56,6 +56,12 @@ class _KChartWidgetState extends State<KChartWidget>  with SingleTickerProviderS
   }
 
   @override
+  void didUpdateWidget(KChartWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.datas != widget.datas) mScrollX = mSelectX = 0.0;
+  }
+
+  @override
   void dispose() {
     mInfoWindowStream?.close();
     _controller?.dispose();
