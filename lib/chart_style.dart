@@ -48,6 +48,11 @@ class ChartColors {
   //实时线
   static const Color realTimeLineColor = Color(0xffffffff);
   static const Color realTimeLongLineColor = Color(0xff4C86CD);
+
+  static const Color simpleLineUpColor = Color(0xff6CB0A6);
+  static const Color simpleLineDnColor = Color(0xffC15466);
+
+
 }
 
 class ChartStyle {

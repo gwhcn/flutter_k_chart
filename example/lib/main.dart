@@ -86,15 +86,16 @@ class _MyHomePageState extends State<MyHomePage> {
           Stack(children: <Widget>[
             Container(
               height: 450,
+              margin: EdgeInsets.symmetric(horizontal: 10),
               width: double.infinity,
-              child: KChartWidget(
-                datas,
-                isLine: isLine,
-                mainState: _mainState,
-                secondaryState: _secondaryState,
-                volState: VolState.VOL,
-                fractionDigits: 4,
-              ),
+               child: KChartWidget(
+                 datas,
+                 isLine: isLine,
+                 mainState: _mainState,
+                 secondaryState: _secondaryState,
+                 volState: VolState.VOL,
+                 fractionDigits: 4,
+               ),
             ),
             if (showLoading)
               Container(
