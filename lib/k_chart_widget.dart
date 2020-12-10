@@ -54,10 +54,10 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   void initState() {
     super.initState();
     mInfoWindowStream = StreamController<InfoWindowEntity>();
-    _controller = AnimationController(duration: Duration(milliseconds: 850), vsync: this);
+    _controller = AnimationController(duration: const Duration(milliseconds: 850), vsync: this);
     _animation = Tween(begin: 0.9, end: 0.1).animate(_controller)..addListener(() => setState(() {}));
     _scrollXController = AnimationController(
-        vsync: this, duration: Duration(milliseconds: 500), lowerBound: -50, upperBound: 50);
+        vsync: this, duration: const Duration(milliseconds: 500), lowerBound: -50, upperBound: 50);
     _scrollListener();
   }
 
