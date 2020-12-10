@@ -93,7 +93,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 //      mLinePath.cubicTo(
 //          (lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2, getY(curPrice), curX, getY(curPrice));
 //    }
-    if (lastX == curX) lastX = 0;//起点位置填充
+    if (lastX == curX) lastX = 0; //起点位置填充
     mLinePath.moveTo(lastX, getY(lastPrice));
     mLinePath.cubicTo(
         (lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2, getY(curPrice), curX, getY(curPrice));
@@ -155,6 +155,16 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     double r = mCandleWidth / 2;
     double lineR = mCandleLineWidth / 2;
 
+    //防止线太细，强制最细1px
+    if ((open - close).abs() < 1) {
+      if (open > close) {
+        open += 0.5;
+        close -= 0.5;
+      } else {
+        open -= 0.5;
+        close += 0.5;
+      }
+    }
     if (open > close) {
       chartPaint.color = ChartColors.upColor;
       canvas.drawRect(Rect.fromLTRB(curX - r, close, curX + r, open), chartPaint);
@@ -183,7 +193,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);
       tp.layout();
       double y;
-      if (i == 0||i == gridRows) {
+      if (i == 0 || i == gridRows) {
         y = getY(value) - tp.height / 2;
       } else {
         y = getY(value) - tp.height;

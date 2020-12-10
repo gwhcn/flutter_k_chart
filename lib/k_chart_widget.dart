@@ -18,8 +18,21 @@ class KChartWidget extends StatefulWidget {
   final VolState volState;
   final SecondaryState secondaryState;
   final bool isLine;
+  final int flingTime;
+  final double flingRatio;
+  final Curve flingCurve;
 
-  KChartWidget(this.datas, {this.mainState = MainState.MA,this.volState = VolState.VOL, this.secondaryState = SecondaryState.MACD, this.isLine,int fractionDigits = 2}){
+  KChartWidget(
+    this.datas, {
+    this.mainState = MainState.MA,
+    this.volState = VolState.VOL,
+    this.secondaryState = SecondaryState.MACD,
+    this.isLine,
+    this.flingTime = 500,
+    this.flingRatio = 0.3,
+    this.flingCurve = Curves.decelerate,
+    int fractionDigits = 2,
+  }) {
     NumberUtil.fractionDigits = fractionDigits;
   }
 
@@ -27,12 +40,14 @@ class KChartWidget extends StatefulWidget {
   _KChartWidgetState createState() => _KChartWidgetState();
 }
 
-class _KChartWidgetState extends State<KChartWidget>  with SingleTickerProviderStateMixin{
+class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMixin {
   AnimationController _controller;
   Animation<double> _animation;
   double mScaleX = 1.0, mScrollX = 0.0, mSelectX = 0.0;
   StreamController<InfoWindowEntity> mInfoWindowStream;
   double mWidth = 0;
+  AnimationController _scrollXController;
+  Animation<double> _scrollXAnimation;
 
   double getMinScrollX() {
     return mScaleX;
@@ -65,6 +80,7 @@ class _KChartWidgetState extends State<KChartWidget>  with SingleTickerProviderS
   void dispose() {
     mInfoWindowStream?.close();
     _controller?.dispose();
+    _scrollXController?.dispose();
     super.dispose();
   }
 
@@ -76,6 +92,7 @@ class _KChartWidgetState extends State<KChartWidget>  with SingleTickerProviderS
     }
     return GestureDetector(
       onHorizontalDragDown: (details) {
+        _stopAnimation();
         isDrag = true;
       },
       onHorizontalDragUpdate: (details) {
@@ -84,7 +101,9 @@ class _KChartWidgetState extends State<KChartWidget>  with SingleTickerProviderS
         notifyChanged();
       },
       onHorizontalDragEnd: (DragEndDetails details) {
-        isDrag = false;
+        // isDrag = false;
+        var velocity = details.velocity.pixelsPerSecond.dx;
+        _onFling(velocity);
       },
       onHorizontalDragCancel: () => isDrag = false,
       onScaleStart: (_) {
@@ -141,6 +160,39 @@ class _KChartWidgetState extends State<KChartWidget>  with SingleTickerProviderS
     );
   }
 
+  void _onFling(double x) {
+    _scrollXController = AnimationController(duration: Duration(milliseconds: widget.flingTime), vsync: this);
+    _scrollXAnimation = null;
+    _scrollXAnimation = Tween<double>(begin: mScrollX, end: x * widget.flingRatio + mScrollX)
+        .animate(CurvedAnimation(parent: _scrollXController, curve: widget.flingCurve));
+    _scrollXAnimation.addListener(() {
+      mScrollX = _scrollXAnimation.value;
+      if (mScrollX <= 0) {
+        mScrollX = 0;
+        _stopAnimation();
+      } else if (mScrollX >= ChartPainter.maxScrollX) {
+        mScrollX = ChartPainter.maxScrollX;
+        _stopAnimation();
+      }
+      notifyChanged();
+    });
+    _scrollXAnimation.addStatusListener((status) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+        isDrag = false;
+        notifyChanged();
+      }
+    });
+    _scrollXController.forward();
+  }
+
+  void _stopAnimation() {
+    if (_scrollXController != null && _scrollXController.isAnimating) {
+      _scrollXController.stop();
+      isDrag = false;
+      notifyChanged();
+    }
+  }
+
   void notifyChanged() => setState(() {});
 
   List<String> infoNames = ["时间", "开", "高", "低", "收", "涨跌额", "涨幅", "成交量"];
@@ -175,7 +227,8 @@ class _KChartWidgetState extends State<KChartWidget>  with SingleTickerProviderS
                   border: Border.all(color: ChartColors.markerBorderColor, width: 0.5)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children: List.generate(infoNames.length, (i) => _buildItem(infos[i].toString(), infoNames[i])),
+                children:
+                    List.generate(infoNames.length, (i) => _buildItem(infos[i].toString(), infoNames[i])),
               ),
             ),
           );
@@ -206,6 +259,7 @@ class _KChartWidgetState extends State<KChartWidget>  with SingleTickerProviderS
   }
 
   String getDate(int date) {
-    return dateFormat(DateTime.fromMillisecondsSinceEpoch(date * 1000), [yy, '-', mm, '-', dd, ' ', HH, ':', nn]);
+    return dateFormat(
+        DateTime.fromMillisecondsSinceEpoch(date * 1000), [yy, '-', mm, '-', dd, ' ', HH, ':', nn]);
   }
 }

@@ -6,9 +6,3 @@ export 'entity/k_line_entity.dart';//数据
 
 export 'entity/depth_entity.dart';
 export 'depth_chart.dart';
-
-///// A Calculator.
-//class Calculator {
-//  /// Returns [value] plus 1.
-//  int addOne(int value) => value + 1;
-//}

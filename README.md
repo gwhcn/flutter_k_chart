@@ -8,6 +8,7 @@
 Demo v0.1.0：[下载 APK](https://github.com/415593725/flutter_k_chart/blob/master/k_chart.apk)
 
 ## 演示
+[webdemo演示](https://flutter-widget.live/packages/flutter_k_chart)
 ![chart_imge](https://github.com/415593725/flutter_k_chart/blob/master/example/images/k_chart.2019-09-01%202010_19_56.gif)
 ![depth_image](https://github.com/415593725/flutter_k_chart/blob/master/example/images/depth.2019-09-01%202010_21_31.gif)
 ![image1](https://github.com/415593725/flutter_k_chart/blob/master/example/images/screenshots.png)
