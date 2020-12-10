@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/physics.dart';
 import 'chart_style.dart';
 import 'entity/info_window_entity.dart';
 import 'entity/k_line_entity.dart';
@@ -18,9 +19,6 @@ class KChartWidget extends StatefulWidget {
   final VolState volState;
   final SecondaryState secondaryState;
   final bool isLine;
-  final int flingTime;
-  final double flingRatio;
-  final Curve flingCurve;
 
   KChartWidget(
     this.datas, {
@@ -28,9 +26,6 @@ class KChartWidget extends StatefulWidget {
     this.volState = VolState.VOL,
     this.secondaryState = SecondaryState.MACD,
     this.isLine,
-    this.flingTime = 500,
-    this.flingRatio = 0.3,
-    this.flingCurve = Curves.decelerate,
     int fractionDigits = 2,
   }) {
     NumberUtil.fractionDigits = fractionDigits;
@@ -47,7 +42,6 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   StreamController<InfoWindowEntity> mInfoWindowStream;
   double mWidth = 0;
   AnimationController _scrollXController;
-  Animation<double> _scrollXAnimation;
 
   double getMinScrollX() {
     return mScaleX;
@@ -62,7 +56,30 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     mInfoWindowStream = StreamController<InfoWindowEntity>();
     _controller = AnimationController(duration: Duration(milliseconds: 850), vsync: this);
     _animation = Tween(begin: 0.9, end: 0.1).animate(_controller)..addListener(() => setState(() {}));
-        _scrollXController = AnimationController(duration: Duration(milliseconds: widget.flingTime), vsync: this);
+    _scrollXController = AnimationController(
+        vsync: this, duration: Duration(milliseconds: 500), lowerBound: -50, upperBound: 50);
+    _scrollListener();
+  }
+
+  void _scrollListener() {
+    _scrollXController.addListener(() {
+      mScrollX += _scrollXController.value;
+      if (mScrollX <= 0) {
+        mScrollX = 0;
+        _stopAnimation();
+      } else if (mScrollX >= ChartPainter.maxScrollX) {
+        mScrollX = ChartPainter.maxScrollX;
+        _stopAnimation();
+      } else {
+        notifyChanged();
+      }
+    });
+    _scrollXController.addStatusListener((status) {
+      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+        isDrag = false;
+        notifyChanged();
+      }
+    });
   }
 
   @override
@@ -103,8 +120,11 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
       },
       onHorizontalDragEnd: (DragEndDetails details) {
         // isDrag = false;
-        var velocity = details.velocity.pixelsPerSecond.dx;
-        _onFling(velocity);
+        ClampingScrollSimulation simulation = ClampingScrollSimulation(
+          position: mSelectX,
+          velocity: details.primaryVelocity / WidgetsBinding.instance.window.devicePixelRatio,
+        );
+        _scrollXController.animateWith(simulation);
       },
       onHorizontalDragCancel: () => isDrag = false,
       onScaleStart: (_) {
@@ -159,30 +179,6 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
         ],
       ),
     );
-  }
-
-  void _onFling(double x) {
-    _scrollXAnimation = null;
-    _scrollXAnimation = Tween<double>(begin: mScrollX, end: x * widget.flingRatio + mScrollX)
-        .animate(CurvedAnimation(parent: _scrollXController, curve: widget.flingCurve));
-    _scrollXAnimation.addListener(() {
-      mScrollX = _scrollXAnimation.value;
-      if (mScrollX <= 0) {
-        mScrollX = 0;
-        _stopAnimation();
-      } else if (mScrollX >= ChartPainter.maxScrollX) {
-        mScrollX = ChartPainter.maxScrollX;
-        _stopAnimation();
-      }
-      notifyChanged();
-    });
-    _scrollXAnimation.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
-        isDrag = false;
-        notifyChanged();
-      }
-    });
-    _scrollXController.forward();
   }
 
   void _stopAnimation() {
