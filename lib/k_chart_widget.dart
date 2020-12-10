@@ -62,6 +62,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     mInfoWindowStream = StreamController<InfoWindowEntity>();
     _controller = AnimationController(duration: Duration(milliseconds: 850), vsync: this);
     _animation = Tween(begin: 0.9, end: 0.1).animate(_controller)..addListener(() => setState(() {}));
+        _scrollXController = AnimationController(duration: Duration(milliseconds: widget.flingTime), vsync: this);
   }
 
   @override
@@ -161,7 +162,6 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   }
 
   void _onFling(double x) {
-    _scrollXController = AnimationController(duration: Duration(milliseconds: widget.flingTime), vsync: this);
     _scrollXAnimation = null;
     _scrollXAnimation = Tween<double>(begin: mScrollX, end: x * widget.flingRatio + mScrollX)
         .animate(CurvedAnimation(parent: _scrollXController, curve: widget.flingCurve));
