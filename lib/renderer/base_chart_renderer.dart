@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_k_chart/chart_style.dart';
 import 'package:flutter_k_chart/utils/number_util.dart';
@@ -6,7 +5,7 @@ export '../chart_style.dart';
 
 abstract class BaseChartRenderer<T> {
   double maxValue, minValue;
-  double scaleY;
+  double scaleY, scaleX;
   double topPadding;
   Rect chartRect;
   final Paint chartPaint = Paint()
@@ -24,7 +23,8 @@ abstract class BaseChartRenderer<T> {
       {@required this.chartRect,
       @required this.maxValue,
       @required this.minValue,
-      @required this.topPadding}) {
+      @required this.topPadding,
+      @required this.scaleX}) {
     if (maxValue == minValue) {
       maxValue += 0.5;
       minValue -= 0.5;
@@ -52,7 +52,7 @@ abstract class BaseChartRenderer<T> {
     canvas.drawLine(Offset(lastX, lastY), Offset(curX, curY), chartPaint..color = color);
   }
 
-  TextStyle getTextStyle(Color color){
-    return TextStyle(fontSize: ChartStyle.defaultTextSize,color: color);
+  TextStyle getTextStyle(Color color) {
+    return TextStyle(fontSize: ChartStyle.defaultTextSize, color: color);
   }
 }

@@ -8,8 +8,13 @@ import '../utils/number_util.dart';
 class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   double mVolWidth = ChartStyle.volWidth;
 
-  VolRenderer(Rect mainRect, double maxValue, double minValue, double topPadding)
-      : super(chartRect: mainRect, maxValue: maxValue, minValue: minValue, topPadding: topPadding);
+  VolRenderer(Rect mainRect, double maxValue, double minValue, double topPadding, double scaleX)
+      : super(
+            chartRect: mainRect,
+            maxValue: maxValue,
+            minValue: minValue,
+            topPadding: topPadding,
+            scaleX: scaleX);
 
   @override
   void drawChart(
@@ -30,7 +35,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   }
 
   @override
-  double getY(double y){
+  double getY(double y) {
     if (maxValue == 0) return chartRect.bottom;
     return (maxValue - y) * (chartRect.height / maxValue) + chartRect.top;
   }
@@ -39,9 +44,14 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   void drawText(Canvas canvas, VolumeEntity data, double x) {
     TextSpan span = TextSpan(
       children: [
-        TextSpan(text: "VOL:${NumberUtil.volFormat(data.vol)}    ", style: getTextStyle(ChartColors.volColor)),
-        TextSpan(text: "MA5:${NumberUtil.volFormat(data.MA5Volume)}    ", style: getTextStyle(ChartColors.ma5Color)),
-        TextSpan(text: "MA10:${NumberUtil.volFormat(data.MA10Volume)}    ", style: getTextStyle(ChartColors.ma10Color)),
+        TextSpan(
+            text: "VOL:${NumberUtil.volFormat(data.vol)}    ", style: getTextStyle(ChartColors.volColor)),
+        TextSpan(
+            text: "MA5:${NumberUtil.volFormat(data.MA5Volume)}    ",
+            style: getTextStyle(ChartColors.ma5Color)),
+        TextSpan(
+            text: "MA10:${NumberUtil.volFormat(data.MA10Volume)}    ",
+            style: getTextStyle(ChartColors.ma10Color)),
       ],
     );
     TextPainter tp = TextPainter(text: span, textDirection: TextDirection.ltr);

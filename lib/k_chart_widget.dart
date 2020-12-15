@@ -57,13 +57,13 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     _controller = AnimationController(duration: const Duration(milliseconds: 850), vsync: this);
     _animation = Tween(begin: 0.9, end: 0.1).animate(_controller)..addListener(() => setState(() {}));
     _scrollXController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500), lowerBound: -50, upperBound: 50);
+        vsync: this, duration: const Duration(milliseconds: 500), lowerBound: double.negativeInfinity, upperBound: double.infinity);
     _scrollListener();
   }
 
   void _scrollListener() {
     _scrollXController.addListener(() {
-      mScrollX += _scrollXController.value;
+      mScrollX = _scrollXController.value;
       if (mScrollX <= 0) {
         mScrollX = 0;
         _stopAnimation();
@@ -120,9 +120,16 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
       },
       onHorizontalDragEnd: (DragEndDetails details) {
         // isDrag = false;
+        final Tolerance tolerance = Tolerance(
+          velocity:
+              1.0 / (0.050 * WidgetsBinding.instance.window.devicePixelRatio), // logical pixels per second
+          distance: 1.0 / WidgetsBinding.instance.window.devicePixelRatio, // logical pixels
+        );
+
         ClampingScrollSimulation simulation = ClampingScrollSimulation(
-          position: mSelectX,
-          velocity: details.primaryVelocity / WidgetsBinding.instance.window.devicePixelRatio,
+          position: mScrollX,
+          velocity: details.primaryVelocity,
+          tolerance: tolerance,
         );
         _scrollXController.animateWith(simulation);
       },

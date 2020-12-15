@@ -11,8 +11,14 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 
   double _contentPadding = 12.0;
 
-  MainRenderer(Rect mainRect, double maxValue, double minValue, double topPadding, this.state, this.isLine)
-      : super(chartRect: mainRect, maxValue: maxValue, minValue: minValue, topPadding: topPadding) {
+  MainRenderer(Rect mainRect, double maxValue, double minValue, double topPadding, this.state, this.isLine,
+      double scaleX)
+      : super(
+            chartRect: mainRect,
+            maxValue: maxValue,
+            minValue: minValue,
+            topPadding: topPadding,
+            scaleX: scaleX) {
     var diff = maxValue - minValue; //计算差
     var newScaleY = (chartRect.height - _contentPadding) / diff; //内容区域高度/差=新的比例
     var newDiff = chartRect.height / newScaleY; //高/新比例=新的差
@@ -72,12 +78,12 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 
   Shader mLineFillShader;
   Path mLinePath, mLineFillPath;
-  Paint mLinePaint = Paint()
+  final double mLineStrokeWidth = 1.0;
+  final Paint mLinePaint = Paint()
     ..isAntiAlias = true
     ..style = PaintingStyle.stroke
-    ..strokeWidth = 1.0
     ..color = ChartColors.kLineColor;
-  Paint mLineFillPaint = Paint()
+  final Paint mLineFillPaint = Paint()
     ..style = PaintingStyle.fill
     ..isAntiAlias = true;
 
@@ -119,7 +125,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
     canvas.drawPath(mLineFillPath, mLineFillPaint);
     mLineFillPath.reset();
 
-    canvas.drawPath(mLinePath, mLinePaint);
+    canvas.drawPath(mLinePath, mLinePaint..strokeWidth = (mLineStrokeWidth / scaleX).clamp(0.3, 1.0));
     mLinePath.reset();
   }
 

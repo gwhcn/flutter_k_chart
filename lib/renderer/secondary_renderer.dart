@@ -10,8 +10,14 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
   double mMACDWidth = ChartStyle.macdWidth;
   SecondaryState state;
 
-  SecondaryRenderer(Rect mainRect, double maxValue, double minValue, double topPadding, this.state)
-      : super(chartRect: mainRect, maxValue: maxValue, minValue: minValue, topPadding: topPadding);
+  SecondaryRenderer(
+      Rect mainRect, double maxValue, double minValue, double topPadding, this.state, double scaleX)
+      : super(
+            chartRect: mainRect,
+            maxValue: maxValue,
+            minValue: minValue,
+            topPadding: topPadding,
+            scaleX: scaleX);
 
   @override
   void drawChart(

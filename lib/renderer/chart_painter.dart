@@ -44,14 +44,14 @@ class ChartPainter extends BaseChartPainter {
 
   @override
   void initChartRenderer() {
-    mMainRenderer ??=
-        MainRenderer(mMainRect, mMainMaxValue, mMainMinValue, ChartStyle.topPadding, mainState, isLine);
+    mMainRenderer ??= MainRenderer(
+        mMainRect, mMainMaxValue, mMainMinValue, ChartStyle.topPadding, mainState, isLine, scaleX);
     if (mVolRect != null) {
-      mVolRenderer ??= VolRenderer(mVolRect, mVolMaxValue, mVolMinValue, ChartStyle.childPadding);
+      mVolRenderer ??= VolRenderer(mVolRect, mVolMaxValue, mVolMinValue, ChartStyle.childPadding, scaleX);
     }
     if (mSecondaryRect != null) {
-      mSecondaryRenderer ??= SecondaryRenderer(
-          mSecondaryRect, mSecondaryMaxValue, mSecondaryMinValue, ChartStyle.childPadding, secondaryState);
+      mSecondaryRenderer ??= SecondaryRenderer(mSecondaryRect, mSecondaryMaxValue, mSecondaryMinValue,
+          ChartStyle.childPadding, secondaryState, scaleX);
     }
   }
 
