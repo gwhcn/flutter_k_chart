@@ -22,7 +22,7 @@ class DataUtil {
 //    double ma60 = 0;
 
     int i = 0;
-    if (isLast && dataList.length > 1) {
+    if (isLast && dataList.length > 30) {
       i = dataList.length - 1;
       var data = dataList[dataList.length - 2];
       ma5 = data.MA5Price * 5;
@@ -161,7 +161,7 @@ class DataUtil {
     double volumeMa10 = 0;
 
     int i = 0;
-    if (isLast && dataList.length > 1) {
+    if (isLast && dataList.length > 10) {
       i = dataList.length - 1;
       var data = dataList[dataList.length - 2];
       volumeMa5 = data.MA5Volume * 5;

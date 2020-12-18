@@ -10,9 +10,9 @@ Demo v0.1.0：[下载 APK](https://github.com/415593725/flutter_k_chart/blob/mas
 
 ## 演示
 
-![chart_imge](https://github.com/415593725/flutter_k_chart/blob/master/example/images/k_chart.2019-09-01%202010_19_56.gif)
-![depth_image](https://github.com/415593725/flutter_k_chart/blob/master/example/images/depth.2019-09-01%202010_21_31.gif)
-![image1](https://github.com/415593725/flutter_k_chart/blob/master/example/images/screenshots.png)
+![chart_imge](https://github.com/gwhcn/flutter_k_chart/blob/master/example/images/k_chart.2019-09-01%202010_19_56.gif)
+![depth_image](https://github.com/gwhcn/flutter_k_chart/blob/master/example/images/depth.2019-09-01%202010_21_31.gif)
+![image1](https://github.com/gwhcn/flutter_k_chart/blob/master/example/images/screenshots.png)
 
 ## 简单用例
 #### 1.在 pubspec.yaml 中添加依赖
@@ -48,7 +48,7 @@ Container(
    child: DepthChart(_bids, _asks),
  )         
 ```
-### 3.修改样式
+#### 3.修改样式
 可在chart_style.dart里面修改图表样式
 
 #### 4.数据处理
@@ -61,5 +61,11 @@ DataUtil.updateLastData(datas);
 DataUtil.addLastData(datas,kLineEntity);
 ```
 
+#### 5.[修改日志](https://github.com/415593725/flutter_k_chart/blob/master/CHANGELOG.md)
+
 ## 问题
 使用中如果有问题可以加QQ群：114563912
+
+##### 请咖啡☕️
+🙏感谢🙏
+![微信](https://user-images.githubusercontent.com/20394691/102617205-c5c50500-4173-11eb-838b-57665d952213.jpg)
