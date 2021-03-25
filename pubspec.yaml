@@ -2,7 +2,7 @@ name: flutter_k_chart
 description: flutter_k_chart, Writted with pure dart, supported both iOS and Android.
 version: 0.1.4
 author: gwh <415593725@qq.com>
-homepage: https://github.com/gwh/flutter_k_chart
+homepage: https://github.com/gwhcn/flutter_k_chart
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
