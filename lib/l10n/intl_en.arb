@@ -1,0 +1,10 @@
+{
+  "date": "Date",
+  "open": "Open",
+  "high": "H",
+  "low": "L",
+  "close": "Close",
+  "change": "Change",
+  "change_": "Change%",
+  "executed": "Executed"
+}

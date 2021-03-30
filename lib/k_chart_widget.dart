@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:flutter_k_chart/generated/l10n.dart';
 import 'chart_style.dart';
 import 'entity/info_window_entity.dart';
 import 'entity/k_line_entity.dart';
 import 'renderer/chart_painter.dart';
-import 'utils/date_format_util.dart';
+import 'utils/date_format_util.dart' hide S;
 import 'utils/number_util.dart';
 
 enum MainState { MA, BOLL, NONE }
@@ -57,7 +58,10 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     _controller = AnimationController(duration: const Duration(milliseconds: 850), vsync: this);
     _animation = Tween(begin: 0.9, end: 0.1).animate(_controller)..addListener(() => setState(() {}));
     _scrollXController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 500), lowerBound: double.negativeInfinity, upperBound: double.infinity);
+        vsync: this,
+        duration: const Duration(milliseconds: 500),
+        lowerBound: double.negativeInfinity,
+        upperBound: double.infinity);
     _scrollListener();
   }
 
@@ -198,7 +202,16 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
 
   void notifyChanged() => setState(() {});
 
-  List<String> infoNames = ["时间", "开", "高", "低", "收", "涨跌额", "涨幅", "成交量"];
+  List<String> infoNames = [
+    S.current.date,
+    S.current.open,
+    S.current.high,
+    S.current.low,
+    S.current.close,
+    S.current.change,
+    S.current.change_,
+    S.current.executed,
+  ];
   List infos;
 
   Widget _buildInfoDialog() {

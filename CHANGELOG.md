@@ -6,4 +6,6 @@
 
 ## [0.1.4] - 修复数据少于30条时，添加数据导致ma计算错误的问题
 
+## [0.1.5] - 加入l10n国际化
+
 * TODO: Describe initial release.

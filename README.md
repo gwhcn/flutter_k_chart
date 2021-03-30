@@ -61,6 +61,16 @@ DataUtil.updateLastData(datas);
 DataUtil.addLastData(datas,kLineEntity);
 ```
 
+#### 国际化 l10n
+```dart
+import 'package:flutter_k_chart/generated/l10n.dart' as k_chart;
+MaterialApp(
+      localizationsDelegates: [
+        k_chart.S.delegate//国际化
+      ],
+);
+```
+
 #### 5.[修改日志](https://github.com/415593725/flutter_k_chart/blob/master/CHANGELOG.md)
 
 ## 问题

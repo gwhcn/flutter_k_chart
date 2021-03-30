@@ -1,0 +1,10 @@
+{
+  "date": "时间",
+  "open": "开",
+  "high": "高",
+  "low": "低",
+  "close": "收",
+  "change": "涨跌额",
+  "change_": "涨跌幅",
+  "executed": "成交量"
+}

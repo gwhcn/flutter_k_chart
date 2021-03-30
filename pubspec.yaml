@@ -1,7 +1,7 @@
 name: flutter_k_chart
 description: flutter_k_chart, Writted with pure dart, supported both iOS and Android.
-version: 0.1.4
-author: gwh <415593725@qq.com>
+version: 0.1.5
+#author: gwh <415593725@qq.com>
 homepage: https://github.com/gwhcn/flutter_k_chart
 
 environment:
@@ -10,6 +10,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
 dev_dependencies:
   flutter_test:
@@ -51,3 +54,5 @@ flutter:
   #
   # For details regarding fonts in packages, see
   # https://flutter.dev/custom-fonts/#from-packages
+flutter_intl:
+  enabled: true

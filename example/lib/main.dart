@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_k_chart/flutter_k_chart.dart';
+import 'package:flutter_k_chart/generated/l10n.dart' as k_chart;
 import 'package:flutter_k_chart/k_chart_widget.dart';
 import 'package:http/http.dart' as http;
 
@@ -17,6 +18,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
+      // supportedLocales: [const Locale('zh', 'CN')],
+      localizationsDelegates: [
+        k_chart.S.delegate//国际话
+      ],
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
