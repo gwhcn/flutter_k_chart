@@ -143,7 +143,6 @@ class DepthChartPainter extends CustomPainter {
             mBuyPointWidth * (i + 1), getY(mBuyData![i + 1].amount));
       }
 
-      x = mBuyPointWidth * i;
       if (i == mBuyData!.length - 1) {
         mBuyPath!.quadraticBezierTo(
             mBuyPointWidth * i, y, mBuyPointWidth * i, mDrawHeight);
@@ -179,7 +178,6 @@ class DepthChartPainter extends CustomPainter {
             (mSellPointWidth * (i + 1)) + mDrawWidth,
             getY(mSellData![i + 1].amount));
       }
-      x = (mSellPointWidth * i) + mDrawWidth;
       if (i == mSellData!.length - 1) {
         mSellPath!.quadraticBezierTo(
             mWidth, y, (mSellPointWidth * i) + mDrawWidth, mDrawHeight);
