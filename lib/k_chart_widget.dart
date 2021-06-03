@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter_k_chart/generated/l10n.dart';
+
 import 'chart_style.dart';
 import 'entity/info_window_entity.dart';
 import 'entity/k_line_entity.dart';
@@ -15,7 +16,7 @@ enum VolState { VOL, NONE }
 enum SecondaryState { MACD, KDJ, RSI, WR, NONE }
 
 class KChartWidget extends StatefulWidget {
-  final List<KLineEntity> datas;
+  final List<KLineEntity>? datas;
   final MainState mainState;
   final VolState volState;
   final SecondaryState secondaryState;
@@ -26,7 +27,7 @@ class KChartWidget extends StatefulWidget {
     this.mainState = MainState.MA,
     this.volState = VolState.VOL,
     this.secondaryState = SecondaryState.MACD,
-    this.isLine,
+    this.isLine = false,
     int fractionDigits = 2,
   }) {
     NumberUtil.fractionDigits = fractionDigits;
@@ -37,12 +38,12 @@ class KChartWidget extends StatefulWidget {
 }
 
 class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMixin {
-  AnimationController _controller;
-  Animation<double> _animation;
+  late AnimationController _controller;
+  late Animation<double> _animation;
   double mScaleX = 1.0, mScrollX = 0.0, mSelectX = 0.0;
-  StreamController<InfoWindowEntity> mInfoWindowStream;
+  StreamController<InfoWindowEntity?>? mInfoWindowStream;
   double mWidth = 0;
-  AnimationController _scrollXController;
+  late AnimationController _scrollXController;
 
   double getMinScrollX() {
     return mScaleX;
@@ -54,9 +55,11 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    mInfoWindowStream = StreamController<InfoWindowEntity>();
-    _controller = AnimationController(duration: const Duration(milliseconds: 850), vsync: this);
-    _animation = Tween(begin: 0.9, end: 0.1).animate(_controller)..addListener(() => setState(() {}));
+    mInfoWindowStream = StreamController<InfoWindowEntity?>();
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 850), vsync: this);
+    _animation = Tween(begin: 0.9, end: 0.1).animate(_controller.view)
+      ..addListener(() => setState(() {}));
     _scrollXController = AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 500),
@@ -101,14 +104,14 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   @override
   void dispose() {
     mInfoWindowStream?.close();
-    _controller?.dispose();
-    _scrollXController?.dispose();
+    _controller.dispose();
+    _scrollXController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.datas == null || widget.datas.isEmpty) {
+    if (widget.datas == null || widget.datas!.isEmpty) {
       mScrollX = mSelectX = 0.0;
       mScaleX = 1.0;
     }
@@ -119,20 +122,25 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
       },
       onHorizontalDragUpdate: (details) {
         if (isScale || isLongPress) return;
-        mScrollX = (details.primaryDelta / mScaleX + mScrollX).clamp(0.0, ChartPainter.maxScrollX);
+        mScrollX = (details.primaryDelta! / mScaleX + mScrollX)
+            .clamp(0.0, ChartPainter.maxScrollX)
+            .toDouble();
         notifyChanged();
       },
       onHorizontalDragEnd: (DragEndDetails details) {
         // isDrag = false;
         final Tolerance tolerance = Tolerance(
           velocity:
-              1.0 / (0.050 * WidgetsBinding.instance.window.devicePixelRatio), // logical pixels per second
-          distance: 1.0 / WidgetsBinding.instance.window.devicePixelRatio, // logical pixels
+              1.0 / (0.050 * WidgetsBinding.instance!.window.devicePixelRatio),
+          // logical pixels per second
+          distance: 1.0 /
+              WidgetsBinding
+                  .instance!.window.devicePixelRatio, // logical pixels
         );
 
         ClampingScrollSimulation simulation = ClampingScrollSimulation(
           position: mScrollX,
-          velocity: details.primaryVelocity,
+          velocity: details.primaryVelocity!,
           tolerance: tolerance,
         );
         _scrollXController.animateWith(simulation);
@@ -165,7 +173,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
       },
       onLongPressEnd: (details) {
         isLongPress = false;
-        mInfoWindowStream?.sink?.add(null);
+        mInfoWindowStream?.sink.add(null);
         notifyChanged();
       },
       child: Stack(
@@ -212,39 +220,43 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     S.current.change_,
     S.current.executed,
   ];
-  List infos;
+  late List infos;
 
   Widget _buildInfoDialog() {
-    return StreamBuilder<InfoWindowEntity>(
+    return StreamBuilder<InfoWindowEntity?>(
         stream: mInfoWindowStream?.stream,
         builder: (context, snapshot) {
-          if (!isLongPress || widget.isLine == true || !snapshot.hasData || snapshot.data.kLineEntity == null)
-            return Container();
-          KLineEntity entity = snapshot.data.kLineEntity;
-          double upDown = entity.close - entity.open;
-          double upDownPercent = upDown / entity.open * 100;
+          if (!isLongPress ||
+              widget.isLine == true ||
+              !snapshot.hasData ||
+              snapshot.data?.kLineEntity == null) return Container();
+          KLineEntity entity = snapshot.data!.kLineEntity;
+          double upDown = entity.close! - entity.open!;
+          double upDownPercent = upDown / entity.open! * 100;
           infos = [
-            getDate(entity.id),
-            NumberUtil.format(entity.open),
-            NumberUtil.format(entity.high),
-            NumberUtil.format(entity.low),
-            NumberUtil.format(entity.close),
+            getDate(entity.id!),
+            NumberUtil.format(entity.open!),
+            NumberUtil.format(entity.high!),
+            NumberUtil.format(entity.low!),
+            NumberUtil.format(entity.close!),
             "${upDown > 0 ? "+" : ""}${NumberUtil.format(upDown)}",
             "${upDownPercent > 0 ? "+" : ''}${upDownPercent.toStringAsFixed(2)}%",
-            NumberUtil.volFormat(entity.vol)
+            NumberUtil.volFormat(entity.vol!)
           ];
           return Align(
-            alignment: snapshot.data.isLeft ? Alignment.topLeft : Alignment.topRight,
+            alignment:
+                snapshot.data!.isLeft ? Alignment.topLeft : Alignment.topRight,
             child: Container(
               margin: EdgeInsets.only(left: 10, right: 10, top: 25),
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
               decoration: BoxDecoration(
                   color: ChartColors.markerBgColor,
-                  border: Border.all(color: ChartColors.markerBorderColor, width: 0.5)),
+                  border: Border.all(
+                      color: ChartColors.markerBorderColor, width: 0.5)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children:
-                    List.generate(infoNames.length, (i) => _buildItem(infos[i].toString(), infoNames[i])),
+                children: List.generate(infoNames.length,
+                    (i) => _buildItem(infos[i].toString(), infoNames[i])),
               ),
             ),
           );

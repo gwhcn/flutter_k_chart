@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       ),
       // supportedLocales: [const Locale('zh', 'CN')],
       localizationsDelegates: [
-        k_chart.S.delegate//国际话
+        k_chart.S.delegate //国际话
       ],
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   final String title;
 
@@ -37,12 +37,12 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<KLineEntity> datas;
+  List<KLineEntity>? datas;
   bool showLoading = true;
   MainState _mainState = MainState.MA;
   SecondaryState _secondaryState = SecondaryState.MACD;
   bool isLine = true;
-  List<DepthEntity> _bids, _asks;
+  List<DepthEntity>? _bids, _asks;
 
   @override
   void initState() {
@@ -51,32 +51,38 @@ class _MyHomePageState extends State<MyHomePage> {
     rootBundle.loadString('assets/depth.json').then((result) {
       final parseJson = json.decode(result);
       Map tick = parseJson['tick'];
-      var bids = tick['bids'].map((item) => DepthEntity(item[0], item[1])).toList().cast<DepthEntity>();
-      var asks = tick['asks'].map((item) => DepthEntity(item[0], item[1])).toList().cast<DepthEntity>();
+      var bids = tick['bids']
+          .map((item) => DepthEntity(item[0], item[1]))
+          .toList()
+          .cast<DepthEntity>();
+      var asks = tick['asks']
+          .map((item) => DepthEntity(item[0], item[1]))
+          .toList()
+          .cast<DepthEntity>();
       initDepth(bids, asks);
     });
   }
 
-  void initDepth(List<DepthEntity> bids, List<DepthEntity> asks) {
+  void initDepth(List<DepthEntity>? bids, List<DepthEntity>? asks) {
     if (bids == null || asks == null || bids.isEmpty || asks.isEmpty) return;
-    _bids = List();
-    _asks = List();
+    _bids = [];
+    _asks = [];
     double amount = 0.0;
-    bids?.sort((left, right) => left.price.compareTo(right.price));
+    bids.sort((left, right) => left.price.compareTo(right.price));
     //倒序循环 //累加买入委托量
     bids.reversed.forEach((item) {
       amount += item.amount;
       item.amount = amount;
-      _bids.insert(0, item);
+      _bids!.insert(0, item);
     });
 
     amount = 0.0;
-    asks?.sort((left, right) => left.price.compareTo(right.price));
+    asks.sort((left, right) => left.price.compareTo(right.price));
     //循环 //累加买入委托量
-    asks?.forEach((item) {
+    asks.forEach((item) {
       amount += item.amount;
       item.amount = amount;
-      _asks.add(item);
+      _asks!.add(item);
     });
     setState(() {});
   }
@@ -91,27 +97,34 @@ class _MyHomePageState extends State<MyHomePage> {
           Stack(children: <Widget>[
             Container(
               height: 450,
-              margin: EdgeInsets.symmetric(horizontal: 10),
               width: double.infinity,
-               child: KChartWidget(
-                 datas,
-                 isLine: isLine,
-                 mainState: _mainState,
-                 secondaryState: _secondaryState,
-                 volState: VolState.VOL,
-                 fractionDigits: 4,
-               ),
+              child: KChartWidget(
+                datas, //数据
+                isLine: isLine,
+                //是否显示折线图
+                mainState: _mainState,
+                //控制主视图指标线
+                secondaryState: _secondaryState,
+                //控制副视图指标线
+                volState: VolState.VOL,
+                //控制成交量指标线
+                fractionDigits: 4, //保留小数位数
+              ),
             ),
             if (showLoading)
               Container(
-                  width: double.infinity, height: 450, alignment: Alignment.center, child: CircularProgressIndicator()),
+                  width: double.infinity,
+                  height: 450,
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator()),
           ]),
           buildButtons(),
-          Container(
-            height: 230,
-            width: double.infinity,
-            child: DepthChart(_bids, _asks),
-          )
+          if (_bids != null && _asks != null)
+            Container(
+              height: 230,
+              width: double.infinity,
+              child: DepthChart(_bids!, _asks!),
+            )
         ],
       ),
     );
@@ -133,57 +146,70 @@ class _MyHomePageState extends State<MyHomePage> {
         button("隐藏副视图", onPressed: () => _secondaryState = SecondaryState.NONE),
         button("update", onPressed: () {
           //更新最后一条数据
-          datas.last.close += (Random().nextInt(100) - 50).toDouble();
-          datas.last.high = max(datas.last.high, datas.last.close);
-          datas.last.low = min(datas.last.low, datas.last.close);
+          datas!.last.close =
+              datas!.last.close! + (Random().nextInt(100) - 50).toDouble();
+          datas!.last.high = max(datas!.last.high!, datas!.last.close!);
+          datas!.last.low = min(datas!.last.low!, datas!.last.close!);
           DataUtil.updateLastData(datas);
         }),
         button("addData", onPressed: () {
           //拷贝一个对象，修改数据
-          var kLineEntity = KLineEntity.fromJson(datas.last.toJson());
-          kLineEntity.id += 60 * 60 * 24;
+          var kLineEntity = KLineEntity.fromJson(datas!.last.toJson());
+          kLineEntity.id = kLineEntity.id! + 60 * 60 * 24;
           kLineEntity.open = kLineEntity.close;
-          kLineEntity.close += (Random().nextInt(100) - 50).toDouble();
-          datas.last.high = max(datas.last.high, datas.last.close);
-          datas.last.low = min(datas.last.low, datas.last.close);
+          kLineEntity.close =
+              kLineEntity.close! + (Random().nextInt(100) - 50).toDouble();
+          datas!.last.high = max(datas!.last.high!, datas!.last.close!);
+          datas!.last.low = min(datas!.last.low!, datas!.last.close!);
           DataUtil.addLastData(datas, kLineEntity);
         }),
         button("1month", onPressed: () async {
 //              showLoading = true;
 //              setState(() {});
-              //getData('1mon');
-              String result = await rootBundle.loadString('assets/kmon.json');
-              Map parseJson = json.decode(result);
-              List list = parseJson['data'];
-              datas = list.map((item) => KLineEntity.fromJson(item)).toList().reversed.toList().cast<KLineEntity>();
-              DataUtil.calculate(datas);
+          //getData('1mon');
+          String result = await rootBundle.loadString('assets/kmon.json');
+          Map parseJson = json.decode(result);
+          List list = parseJson['data'];
+          datas = list
+              .map((item) => KLineEntity.fromJson(item))
+              .toList()
+              .reversed
+              .toList()
+              .cast<KLineEntity>();
+          DataUtil.calculate(datas);
         }),
-        FlatButton(
-            onPressed: (){
-              showLoading = true;
-              setState(() {});
-              getData('1day');
-            },
-            child: Text("1day"),
-            color: Colors.blue),
+        button('1Day', onPressed: () {
+          showLoading = true;
+          setState(() {});
+          getData('1day');
+        }),
       ],
     );
   }
 
-  Widget button(String text, {VoidCallback onPressed}) {
-    return FlatButton(
-        onPressed: () {
-          if (onPressed != null) {
-            onPressed();
-            setState(() {});
-          }
-        },
-        child: Text("$text"),
-        color: Colors.blue);
+  Widget button(String text, {VoidCallback? onPressed}) {
+    return TextButton(
+      onPressed: () {
+        if (onPressed != null) {
+          onPressed();
+          setState(() {});
+        }
+      },
+      child: Text(text),
+      style: TextButton.styleFrom(
+        primary: Colors.white,
+        minimumSize: const Size(88, 44),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(2.0)),
+        ),
+        backgroundColor: Colors.blue,
+      ),
+    );
   }
 
   void getData(String period) async {
-    String result;
+    late String result;
     try {
       result = await getIPAddress('$period');
     } catch (e) {
@@ -192,18 +218,24 @@ class _MyHomePageState extends State<MyHomePage> {
     } finally {
       Map parseJson = json.decode(result);
       List list = parseJson['data'];
-      datas = list.map((item) => KLineEntity.fromJson(item)).toList().reversed.toList().cast<KLineEntity>();
+      datas = list
+          .map((item) => KLineEntity.fromJson(item))
+          .toList()
+          .reversed
+          .toList()
+          .cast<KLineEntity>();
       DataUtil.calculate(datas);
       showLoading = false;
       setState(() {});
     }
   }
 
-  Future<String> getIPAddress(String period) async {
+  Future<String> getIPAddress(String? period) async {
     //火币api，需要翻墙
-    var url = 'https://api.huobi.br.com/market/history/kline?period=${period ?? '1day'}&size=300&symbol=btcusdt';
+    var url =
+        'https://api.huobi.br.com/market/history/kline?period=${period ?? '1day'}&size=300&symbol=btcusdt';
     String result;
-    var response = await http.get(url).timeout(Duration(seconds: 7));
+    var response = await http.get(Uri.parse(url)).timeout(Duration(seconds: 7));
     if (response.statusCode == 200) {
       result = response.body;
     } else {
