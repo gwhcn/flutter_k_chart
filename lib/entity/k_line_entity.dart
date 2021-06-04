@@ -4,11 +4,11 @@
 import '../entity/k_entity.dart';
 
 class KLineEntity extends KEntity {
-  double? open;
-  double? high;
-  double? low;
-  double? close;
-  double? vol;
+  late double open;
+  late double high;
+  late double low;
+  late double close;
+  late double vol;
   double? amount;
   int? count;
   int? id;

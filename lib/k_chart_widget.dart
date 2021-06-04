@@ -12,22 +12,56 @@ import 'utils/date_format_util.dart' hide S;
 import 'utils/number_util.dart';
 
 enum MainState { MA, BOLL, NONE }
-enum VolState { VOL, NONE }
 enum SecondaryState { MACD, KDJ, RSI, WR, NONE }
+
+class TimeFormat {
+  static const List<String> YEAR_MONTH_DAY = [yyyy, '-', mm, '-', dd];
+  static const List<String> YEAR_MONTH_DAY_WITH_HOUR = [
+    yyyy,
+    '-',
+    mm,
+    '-',
+    dd,
+    ' ',
+    HH,
+    ':',
+    nn
+  ];
+}
 
 class KChartWidget extends StatefulWidget {
   final List<KLineEntity>? datas;
   final MainState mainState;
-  final VolState volState;
+  final bool volHidden;
   final SecondaryState secondaryState;
   final bool isLine;
+  final Function()? onSecondaryTap;
+  final List<String> timeFormat;
+
+  //当屏幕滚动到尽头会调用，真为拉到屏幕右侧尽头，假为拉到屏幕左侧尽头
+  final Function(bool)? onLoadMore;
+  final List<Color>? bgColor;
+  final List<int> maDayList;
+  final int flingTime;
+  final double flingRatio;
+  final Curve flingCurve;
+  final Function(bool)? isOnDrag;
 
   KChartWidget(
     this.datas, {
+    this.volHidden = false,
     this.mainState = MainState.MA,
-    this.volState = VolState.VOL,
     this.secondaryState = SecondaryState.MACD,
     this.isLine = false,
+    this.bgColor,
+    this.timeFormat = TimeFormat.YEAR_MONTH_DAY,
+    this.maDayList = const [5, 10, 20],
+    this.flingTime = 600,
+    this.flingRatio = 0.5,
+    this.flingCurve = Curves.decelerate,
+    this.isOnDrag,
+    this.onLoadMore,
+    this.onSecondaryTap,
     int fractionDigits = 2,
   }) {
     NumberUtil.fractionDigits = fractionDigits;
@@ -37,7 +71,8 @@ class KChartWidget extends StatefulWidget {
   _KChartWidgetState createState() => _KChartWidgetState();
 }
 
-class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMixin {
+class _KChartWidgetState extends State<KChartWidget>
+    with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
   double mScaleX = 1.0, mScrollX = 0.0, mSelectX = 0.0;
@@ -82,7 +117,8 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
       }
     });
     _scrollXController.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
         isDrag = false;
         notifyChanged();
       }
@@ -181,18 +217,21 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
           CustomPaint(
             size: Size(double.infinity, double.infinity),
             painter: ChartPainter(
-                datas: widget.datas,
-                scaleX: mScaleX,
-                scrollX: mScrollX,
-                selectX: mSelectX,
-                isLongPass: isLongPress,
-                mainState: widget.mainState,
-                volState: widget.volState,
-                secondaryState: widget.secondaryState,
-                isLine: widget.isLine,
-                sink: mInfoWindowStream?.sink,
-                opacity: _animation.value,
-                controller: _controller),
+              datas: widget.datas,
+              scaleX: mScaleX,
+              scrollX: mScrollX,
+              selectX: mSelectX,
+              isLongPass: isLongPress,
+              mainState: widget.mainState,
+              volHidden: widget.volHidden,
+              secondaryState: widget.secondaryState,
+              isLine: widget.isLine,
+              sink: mInfoWindowStream?.sink,
+              opacity: _animation.value,
+              controller: _controller,
+              bgColor: widget.bgColor,
+              maDayList: widget.maDayList,
+            ),
           ),
           _buildInfoDialog()
         ],
@@ -201,7 +240,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   }
 
   void _stopAnimation() {
-    if (_scrollXController != null && _scrollXController.isAnimating) {
+    if (_scrollXController.isAnimating) {
       _scrollXController.stop();
       isDrag = false;
       notifyChanged();
@@ -231,17 +270,17 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
               !snapshot.hasData ||
               snapshot.data?.kLineEntity == null) return Container();
           KLineEntity entity = snapshot.data!.kLineEntity;
-          double upDown = entity.close! - entity.open!;
-          double upDownPercent = upDown / entity.open! * 100;
+          double upDown = entity.close - entity.open;
+          double upDownPercent = upDown / entity.open * 100;
           infos = [
             getDate(entity.id!),
-            NumberUtil.format(entity.open!),
-            NumberUtil.format(entity.high!),
-            NumberUtil.format(entity.low!),
-            NumberUtil.format(entity.close!),
+            NumberUtil.format(entity.open),
+            NumberUtil.format(entity.high),
+            NumberUtil.format(entity.low),
+            NumberUtil.format(entity.close),
             "${upDown > 0 ? "+" : ""}${NumberUtil.format(upDown)}",
             "${upDownPercent > 0 ? "+" : ''}${upDownPercent.toStringAsFixed(2)}%",
-            NumberUtil.volFormat(entity.vol!)
+            NumberUtil.volFormat(entity.vol)
           ];
           return Align(
             alignment:
@@ -272,22 +311,27 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     else
       color = Colors.white;
     return Container(
-      constraints: BoxConstraints(minWidth: 95, maxWidth: 110, maxHeight: 14.0, minHeight: 14.0),
+      constraints: BoxConstraints(
+          minWidth: 95, maxWidth: 110, maxHeight: 14.0, minHeight: 14.0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text("$infoName", style: TextStyle(color: Colors.white, fontSize: ChartStyle.defaultTextSize)),
+          Text("$infoName",
+              style: TextStyle(
+                  color: Colors.white, fontSize: ChartStyle.defaultTextSize)),
           SizedBox(width: 5),
-          Text(info, style: TextStyle(color: color, fontSize: ChartStyle.defaultTextSize)),
+          Text(info,
+              style: TextStyle(
+                  color: color, fontSize: ChartStyle.defaultTextSize)),
         ],
       ),
     );
   }
 
   String getDate(int date) {
-    return dateFormat(
-        DateTime.fromMillisecondsSinceEpoch(date * 1000), [yy, '-', mm, '-', dd, ' ', HH, ':', nn]);
+    return dateFormat(DateTime.fromMillisecondsSinceEpoch(date * 1000),
+        [yy, '-', mm, '-', dd, ' ', HH, ':', nn]);
   }
 }

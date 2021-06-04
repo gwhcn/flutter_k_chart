@@ -1,13 +1,15 @@
 mixin CandleEntity {
-  double? open;
-  double? high;
-  double? low;
-  double? close;
+  late double open;
+  late double high;
+  late double low;
+  late double close;
 
-  double? MA5Price;
-  double? MA10Price;
-  double? MA20Price;
-  double? MA30Price;
+  List<double>? maValueList;
+
+  // double? MA5Price;
+  // double? MA10Price;
+  // double? MA20Price;
+  // double? MA30Price;
 
 //  上轨线
   double? up;
@@ -17,4 +19,6 @@ mixin CandleEntity {
 
 //  下轨线
   double? dn;
+
+  double? BOLLMA;
 }

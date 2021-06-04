@@ -49,8 +49,11 @@ abstract class BaseChartRenderer<T> {
   void drawChart(T lastPoint, T curPoint, double lastX, double curX, Size size,
       Canvas canvas);
 
-  void drawLine(double lastPrice, double curPrice, Canvas canvas, double lastX,
-      double curX, Color color) {
+  void drawLine(double? lastPrice, double? curPrice, Canvas canvas,
+      double lastX, double curX, Color color) {
+    if (lastPrice == null || curPrice == null) {
+      return;
+    }
     double lastY = getY(lastPrice);
     double curY = getY(curPrice);
     canvas.drawLine(
