@@ -84,12 +84,10 @@ class ChartPainter extends BaseChartPainter {
       colors: bgColor ?? [Color(0xff18191d), Color(0xff18191d)],
     );
 
-    if (mMainRect != null) {
-      Rect mainRect = Rect.fromLTRB(
-          0, 0, mMainRect.width, mMainRect.height + ChartStyle.topPadding);
-      canvas.drawRect(
-          mainRect, mBgPaint..shader = mBgGradient.createShader(mainRect));
-    }
+    Rect mainRect = Rect.fromLTRB(
+        0, 0, mMainRect.width, mMainRect.height + ChartStyle.topPadding);
+    canvas.drawRect(
+        mainRect, mBgPaint..shader = mBgGradient.createShader(mainRect));
 
     if (mVolRect != null) {
       Rect volRect = Rect.fromLTRB(0, mVolRect!.top - ChartStyle.childPadding,

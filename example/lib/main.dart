@@ -44,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isLine = true;
   List<DepthEntity>? _bids, _asks;
   List<int> maDayList = [];
+  bool volHidden = false;
 
   @override
   void initState() {
@@ -100,6 +101,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: KChartWidget(
                 datas,
                 isLine: isLine,
+                volHidden: volHidden,
                 mainState: _mainState,
                 secondaryState: _secondaryState,
                 maDayList: maDayList,
@@ -129,17 +131,40 @@ class _MyHomePageState extends State<MyHomePage> {
     return Wrap(
       alignment: WrapAlignment.spaceEvenly,
       children: <Widget>[
-        button('Chia sẻ thời gian', onPressed: () => isLine = true),
-        button('kLine', onPressed: () => isLine = false),
-        button('MA', onPressed: () => _mainState = MainState.MA),
-        button('BOLL', onPressed: () => _mainState = MainState.BOLL),
-        button('ẩn giấu', onPressed: () => _mainState = MainState.NONE),
-        button('MACD', onPressed: () => _secondaryState = SecondaryState.MACD),
-        button('KDJ', onPressed: () => _secondaryState = SecondaryState.KDJ),
-        button('RSI', onPressed: () => _secondaryState = SecondaryState.RSI),
-        button('WR', onPressed: () => _secondaryState = SecondaryState.WR),
-        button('Ẩn chế độ xem bên',
-            onPressed: () => _secondaryState = SecondaryState.NONE),
+        button('kLine', onPressed: () => isLine = !isLine),
+        button('volHidden', onPressed: () => volHidden = !volHidden),
+        button('MA',
+            onPressed: () => _mainState =
+                (_mainState == MainState.NONE) ? MainState.MA : MainState.NONE),
+        button('BOLL',
+            onPressed: () => _mainState = (_mainState == MainState.NONE)
+                ? MainState.BOLL
+                : MainState.NONE),
+        button('MACD',
+            onPressed: () => _secondaryState =
+                (_secondaryState == SecondaryState.NONE)
+                    ? SecondaryState.MACD
+                    : SecondaryState.NONE),
+        button('KDJ',
+            onPressed: () => _secondaryState =
+                (_secondaryState == SecondaryState.NONE)
+                    ? SecondaryState.KDJ
+                    : SecondaryState.NONE),
+        button('RSI',
+            onPressed: () => _secondaryState =
+                (_secondaryState == SecondaryState.NONE)
+                    ? SecondaryState.RSI
+                    : SecondaryState.NONE),
+        button('WR',
+            onPressed: () => _secondaryState =
+                (_secondaryState == SecondaryState.NONE)
+                    ? SecondaryState.WR
+                    : SecondaryState.NONE),
+        button('CCI',
+            onPressed: () => _secondaryState =
+                (_secondaryState == SecondaryState.NONE)
+                    ? SecondaryState.CCI
+                    : SecondaryState.NONE),
         button('update', onPressed: () {
           //更新最后一条数据
           datas!.last.close =

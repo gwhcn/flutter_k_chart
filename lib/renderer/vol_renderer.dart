@@ -21,12 +21,12 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
   void drawChart(
       VolumeEntity lastPoint, VolumeEntity curPoint, double lastX, double curX, Size size, Canvas canvas) {
     double r = mVolWidth / 2;
-    double top = getY(curPoint.vol!);
+    double top = getY(curPoint.vol);
     double bottom = chartRect.bottom;
     canvas.drawRect(
         Rect.fromLTRB(curX - r, top, curX + r, bottom),
         chartPaint
-          ..color = curPoint.close! >= curPoint.open!
+          ..color = curPoint.close >= curPoint.open
               ? ChartColors.upColor
               : ChartColors.dnColor);
 
@@ -52,7 +52,7 @@ class VolRenderer extends BaseChartRenderer<VolumeEntity> {
     TextSpan span = TextSpan(
       children: [
         TextSpan(
-            text: "VOL:${NumberUtil.volFormat(data.vol!)}    ",
+            text: "VOL:${NumberUtil.volFormat(data.vol)}    ",
             style: getTextStyle(ChartColors.volColor)),
         TextSpan(
             text: "MA5:${NumberUtil.volFormat(data.MA5Volume!)}    ",
