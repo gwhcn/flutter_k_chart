@@ -42,7 +42,8 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
           children: List.generate(
               data.maValueList?.length ?? 0,
               (i) => TextSpan(
-                  text: "MA${maDayList[i]}:${format(data.maValueList![i])}    ",
+                  text:
+                      "MA(${maDayList[i]}):${format(data.maValueList![i])}    ",
                   style: getTextStyle(ChartColors.getMAColor(i)))));
     } else if (state == MainState.BOLL) {
       span = TextSpan(
@@ -95,16 +96,8 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   //画折线图
   draLine(double lastPrice, double curPrice, Canvas canvas, double lastX,
       double curX) {
-//    drawLine(lastPrice + 100, curPrice + 100, canvas, lastX, curX, ChartColors.kLineColor);
     mLinePath ??= Path();
 
-//    if (lastX == curX) {
-//      mLinePath.moveTo(lastX, getY(lastPrice));
-//    } else {
-////      mLinePath.lineTo(curX, getY(curPrice));
-//      mLinePath.cubicTo(
-//          (lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2, getY(curPrice), curX, getY(curPrice));
-//    }
     if (lastX == curX) lastX = 0; //起点位置填充
     mLinePath!.moveTo(lastX, getY(lastPrice));
     mLinePath!.cubicTo((lastX + curX) / 2, getY(lastPrice), (lastX + curX) / 2,
@@ -228,7 +221,6 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 
   @override
   void drawGrid(Canvas canvas, int gridRows, int gridColumns) {
-//    final int gridRows = 4, gridColumns = 4;
     double rowSpace = chartRect.height / gridRows;
     for (int i = 0; i <= gridRows; i++) {
       canvas.drawLine(Offset(0, rowSpace * i + topPadding),

@@ -43,7 +43,7 @@ class _MyHomePageState extends State<MyHomePage> {
   SecondaryState _secondaryState = SecondaryState.MACD;
   bool isLine = true;
   List<DepthEntity>? _bids, _asks;
-  List<int> maDayList = [];
+  List<int> maDayList = [10, 100, 1000];
   bool volHidden = false;
 
   @override
@@ -90,39 +90,41 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        children: <Widget>[
-          Stack(children: <Widget>[
-            Container(
-              height: 450,
-              width: double.infinity,
-              child: KChartWidget(
-                datas,
-                isLine: isLine,
-                volHidden: volHidden,
-                mainState: _mainState,
-                secondaryState: _secondaryState,
-                maDayList: maDayList,
-                timeFormat: TimeFormat.YEAR_MONTH_DAY,
-              ),
-            ),
-            if (showLoading)
+      body: Center(
+        child: ListView(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          children: <Widget>[
+            Stack(children: <Widget>[
               Container(
-                  width: double.infinity,
-                  height: 450,
-                  alignment: Alignment.center,
-                  child: const CircularProgressIndicator()),
-          ]),
-          buildButtons(),
-          if (_bids != null && _asks != null)
-            Container(
-              height: 230,
-              width: double.infinity,
-              child: DepthChart(_bids!, _asks!),
-            )
-        ],
+                height: 450,
+                width: double.infinity,
+                child: KChartWidget(
+                  datas,
+                  isLine: isLine,
+                  volHidden: volHidden,
+                  mainState: _mainState,
+                  secondaryState: _secondaryState,
+                  maDayList: maDayList,
+                  timeFormat: TimeFormat.YEAR_MONTH_DAY,
+                ),
+              ),
+              if (showLoading)
+                Container(
+                    width: double.infinity,
+                    height: 450,
+                    alignment: Alignment.center,
+                    child: const CircularProgressIndicator()),
+            ]),
+            buildButtons(),
+            // if (_bids != null && _asks != null)
+            //   Container(
+            //     height: 230,
+            //     width: double.infinity,
+            //     child: DepthChart(_bids!, _asks!),
+            //   )
+          ],
+        ),
       ),
     );
   }
