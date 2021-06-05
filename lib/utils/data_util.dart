@@ -4,7 +4,6 @@ import '../entity/k_line_entity.dart';
 
 class DataUtil {
   static calculate(List<KLineEntity> dataList) {
-    if (dataList == null) return;
     _calcMA(dataList);
     _calcBOLL(dataList);
     _calcVolumeMA(dataList);
@@ -25,10 +24,10 @@ class DataUtil {
     if (isLast && dataList.length > 30) {
       i = dataList.length - 1;
       var data = dataList[dataList.length - 2];
-      ma5 = data.MA5Price * 5;
-      ma10 = data.MA10Price * 10;
-      ma20 = data.MA20Price * 20;
-      ma30 = data.MA30Price * 30;
+      ma5 = data.MA5Price! * 5;
+      ma10 = data.MA10Price! * 10;
+      ma20 = data.MA20Price! * 20;
+      ma30 = data.MA30Price! * 30;
 //      ma60 = data.MA60Price * 60;
     }
     for (; i < dataList.length; i++) {
@@ -99,15 +98,15 @@ class DataUtil {
         double md = 0;
         for (int j = i - n + 1; j <= i; j++) {
           double c = dataList[j].close;
-          double m = entity.MA20Price;
+          double m = entity.MA20Price!;
           double value = c - m;
           md += value * value;
         }
         md = md / (n - 1);
         md = sqrt(md);
         entity.mb = entity.MA20Price;
-        entity.up = entity.mb + 2.0 * md;
-        entity.dn = entity.mb - 2.0 * md;
+        entity.up = entity.mb! + 2.0 * md;
+        entity.dn = entity.mb! - 2.0 * md;
       }
     }
   }
@@ -123,11 +122,11 @@ class DataUtil {
     if (isLast && dataList.length > 1) {
       i = dataList.length - 1;
       var data = dataList[dataList.length - 2];
-      dif = data.dif;
-      dea = data.dea;
-      macd = data.macd;
-      ema12 = data.ema12;
-      ema26 = data.ema26;
+      dif = data.dif!;
+      dea = data.dea!;
+      macd = data.macd!;
+      ema12 = data.ema12!;
+      ema26 = data.ema26!;
     }
 
     for (; i < dataList.length; i++) {
@@ -164,8 +163,8 @@ class DataUtil {
     if (isLast && dataList.length > 10) {
       i = dataList.length - 1;
       var data = dataList[dataList.length - 2];
-      volumeMa5 = data.MA5Volume * 5;
-      volumeMa10 = data.MA10Volume * 10;
+      volumeMa5 = data.MA5Volume! * 5;
+      volumeMa10 = data.MA10Volume! * 10;
     }
 
     for (; i < dataList.length; i++) {
@@ -203,9 +202,9 @@ class DataUtil {
     if (isLast && dataList.length > 1) {
       i = dataList.length - 1;
       var data = dataList[dataList.length - 2];
-      rsi = data.rsi;
-      rsiABSEma = data.rsiABSEma;
-      rsiMaxEma = data.rsiMaxEma;
+      rsi = data.rsi!;
+      rsiABSEma = data.rsiABSEma!;
+      rsiMaxEma = data.rsiMaxEma!;
     }
 
     for (; i < dataList.length; i++) {
@@ -239,8 +238,8 @@ class DataUtil {
     if (isLast && dataList.length > 1) {
       i = dataList.length - 1;
       var data = dataList[dataList.length - 2];
-      k = data.k;
-      d = data.d;
+      k = data.k!;
+      d = data.d!;
     }
 
     for (; i < dataList.length; i++) {
@@ -315,7 +314,6 @@ class DataUtil {
 
   //增量更新时计算最后一个数据
   static addLastData(List<KLineEntity> dataList, KLineEntity data) {
-    if (dataList == null || data == null) return;
     dataList.add(data);
     _calcMA(dataList, true);
     _calcBOLL(dataList, true);
@@ -328,7 +326,6 @@ class DataUtil {
 
   //更新最后一条数据
   static updateLastData(List<KLineEntity> dataList) {
-    if (dataList == null) return;
     _calcMA(dataList, true);
     _calcBOLL(dataList, true);
     _calcVolumeMA(dataList, true);
