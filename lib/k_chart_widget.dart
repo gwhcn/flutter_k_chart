@@ -26,7 +26,7 @@ class KChartWidget extends StatefulWidget {
     this.mainState = MainState.MA,
     this.volState = VolState.VOL,
     this.secondaryState = SecondaryState.MACD,
-    this.isLine,
+    this.isLine = false,
     int fractionDigits = 2,
   }) {
     NumberUtil.fractionDigits = fractionDigits;
@@ -36,13 +36,14 @@ class KChartWidget extends StatefulWidget {
   _KChartWidgetState createState() => _KChartWidgetState();
 }
 
-class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMixin {
-  AnimationController _controller;
-  Animation<double> _animation;
+class _KChartWidgetState extends State<KChartWidget>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
   double mScaleX = 1.0, mScrollX = 0.0, mSelectX = 0.0;
-  StreamController<InfoWindowEntity> mInfoWindowStream;
+  late StreamController<InfoWindowEntity?> mInfoWindowStream;
   double mWidth = 0;
-  AnimationController _scrollXController;
+  late AnimationController _scrollXController;
 
   double getMinScrollX() {
     return mScaleX;
@@ -54,9 +55,11 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   @override
   void initState() {
     super.initState();
-    mInfoWindowStream = StreamController<InfoWindowEntity>();
-    _controller = AnimationController(duration: const Duration(milliseconds: 850), vsync: this);
-    _animation = Tween(begin: 0.9, end: 0.1).animate(_controller)..addListener(() => setState(() {}));
+    mInfoWindowStream = StreamController();
+    _controller = AnimationController(
+        duration: const Duration(milliseconds: 850), vsync: this);
+    _animation = Tween(begin: 0.9, end: 0.1).animate(_controller)
+      ..addListener(() => setState(() {}));
     _scrollXController = AnimationController(
         vsync: this,
         duration: const Duration(milliseconds: 500),
@@ -79,7 +82,8 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
       }
     });
     _scrollXController.addStatusListener((status) {
-      if (status == AnimationStatus.completed || status == AnimationStatus.dismissed) {
+      if (status == AnimationStatus.completed ||
+          status == AnimationStatus.dismissed) {
         isDrag = false;
         notifyChanged();
       }
@@ -100,15 +104,15 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
 
   @override
   void dispose() {
-    mInfoWindowStream?.close();
-    _controller?.dispose();
-    _scrollXController?.dispose();
+    mInfoWindowStream.close();
+    _controller.dispose();
+    _scrollXController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (widget.datas == null || widget.datas.isEmpty) {
+    if (widget.datas.isEmpty) {
       mScrollX = mSelectX = 0.0;
       mScaleX = 1.0;
     }
@@ -118,21 +122,26 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
         isDrag = true;
       },
       onHorizontalDragUpdate: (details) {
-        if (isScale || isLongPress) return;
-        mScrollX = (details.primaryDelta / mScaleX + mScrollX).clamp(0.0, ChartPainter.maxScrollX);
+        if (isScale || isLongPress || details.primaryDelta == null) return;
+        mScrollX = (details.primaryDelta! / mScaleX + mScrollX)
+            .clamp(0.0, ChartPainter.maxScrollX)
+            .toDouble();
         notifyChanged();
       },
       onHorizontalDragEnd: (DragEndDetails details) {
         // isDrag = false;
         final Tolerance tolerance = Tolerance(
           velocity:
-              1.0 / (0.050 * WidgetsBinding.instance.window.devicePixelRatio), // logical pixels per second
-          distance: 1.0 / WidgetsBinding.instance.window.devicePixelRatio, // logical pixels
+              1.0 / (0.050 * WidgetsBinding.instance!.window.devicePixelRatio),
+          // logical pixels per second
+          distance: 1.0 /
+              WidgetsBinding
+                  .instance!.window.devicePixelRatio, // logical pixels
         );
-
+        if (details.primaryVelocity == null) return;
         ClampingScrollSimulation simulation = ClampingScrollSimulation(
           position: mScrollX,
-          velocity: details.primaryVelocity,
+          velocity: details.primaryVelocity!,
           tolerance: tolerance,
         );
         _scrollXController.animateWith(simulation);
@@ -165,13 +174,13 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
       },
       onLongPressEnd: (details) {
         isLongPress = false;
-        mInfoWindowStream?.sink?.add(null);
+        mInfoWindowStream.add(null);
         notifyChanged();
       },
       child: Stack(
         children: <Widget>[
           CustomPaint(
-            size: Size(double.infinity, double.infinity),
+            size: const Size(double.infinity, double.infinity),
             painter: ChartPainter(
                 datas: widget.datas,
                 scaleX: mScaleX,
@@ -182,7 +191,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
                 volState: widget.volState,
                 secondaryState: widget.secondaryState,
                 isLine: widget.isLine,
-                sink: mInfoWindowStream?.sink,
+                sink: mInfoWindowStream.sink,
                 opacity: _animation.value,
                 controller: _controller),
           ),
@@ -193,7 +202,7 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
   }
 
   void _stopAnimation() {
-    if (_scrollXController != null && _scrollXController.isAnimating) {
+    if (_scrollXController.isAnimating) {
       _scrollXController.stop();
       isDrag = false;
       notifyChanged();
@@ -212,19 +221,21 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     S.current.change_,
     S.current.executed,
   ];
-  List infos;
+  late List infos;
 
   Widget _buildInfoDialog() {
-    return StreamBuilder<InfoWindowEntity>(
-        stream: mInfoWindowStream?.stream,
+    return StreamBuilder<InfoWindowEntity?>(
+        stream: mInfoWindowStream.stream,
         builder: (context, snapshot) {
-          if (!isLongPress || widget.isLine == true || !snapshot.hasData || snapshot.data.kLineEntity == null)
-            return Container();
-          KLineEntity entity = snapshot.data.kLineEntity;
+          if (!isLongPress ||
+              widget.isLine == true ||
+              !snapshot.hasData ||
+              snapshot.data?.kLineEntity == null) return const SizedBox();
+          KLineEntity entity = snapshot.data!.kLineEntity;
           double upDown = entity.close - entity.open;
           double upDownPercent = upDown / entity.open * 100;
           infos = [
-            getDate(entity.id),
+            getDate(entity.id!),
             NumberUtil.format(entity.open),
             NumberUtil.format(entity.high),
             NumberUtil.format(entity.low),
@@ -234,17 +245,19 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
             NumberUtil.volFormat(entity.vol)
           ];
           return Align(
-            alignment: snapshot.data.isLeft ? Alignment.topLeft : Alignment.topRight,
+            alignment:
+                snapshot.data!.isLeft ? Alignment.topLeft : Alignment.topRight,
             child: Container(
-              margin: EdgeInsets.only(left: 10, right: 10, top: 25),
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+              margin: const EdgeInsets.only(left: 10, right: 10, top: 25),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
               decoration: BoxDecoration(
                   color: ChartColors.markerBgColor,
-                  border: Border.all(color: ChartColors.markerBorderColor, width: 0.5)),
+                  border: Border.all(
+                      color: ChartColors.markerBorderColor, width: 0.5)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                children:
-                    List.generate(infoNames.length, (i) => _buildItem(infos[i].toString(), infoNames[i])),
+                children: List.generate(infoNames.length,
+                    (i) => _buildItem(infos[i].toString(), infoNames[i])),
               ),
             ),
           );
@@ -260,22 +273,27 @@ class _KChartWidgetState extends State<KChartWidget> with TickerProviderStateMix
     else
       color = Colors.white;
     return Container(
-      constraints: BoxConstraints(minWidth: 95, maxWidth: 110, maxHeight: 14.0, minHeight: 14.0),
+      constraints: const BoxConstraints(
+          minWidth: 95, maxWidth: 110, maxHeight: 14.0, minHeight: 14.0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text("$infoName", style: TextStyle(color: Colors.white, fontSize: ChartStyle.defaultTextSize)),
+          Text("$infoName",
+              style: TextStyle(
+                  color: Colors.white, fontSize: ChartStyle.defaultTextSize)),
           SizedBox(width: 5),
-          Text(info, style: TextStyle(color: color, fontSize: ChartStyle.defaultTextSize)),
+          Text(info,
+              style: TextStyle(
+                  color: color, fontSize: ChartStyle.defaultTextSize)),
         ],
       ),
     );
   }
 
   String getDate(int date) {
-    return dateFormat(
-        DateTime.fromMillisecondsSinceEpoch(date * 1000), [yy, '-', mm, '-', dd, ' ', HH, ':', nn]);
+    return dateFormat(DateTime.fromMillisecondsSinceEpoch(date * 1000),
+        [yy, '-', mm, '-', dd, ' ', HH, ':', nn]);
   }
 }
