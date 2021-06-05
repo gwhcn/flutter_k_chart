@@ -92,9 +92,11 @@ class ChartStyle {
   static const double hCrossWidth = 0.5;
 
   //网格
-  static const int gridRows = 3, gridColumns = 4;
+  static const int gridRows = 5, gridColumns = 5;
 
-  static const double topPadding = 30.0, bottomDateHigh = 20.0, childPadding = 25.0;
+  static const double topPadding = 30.0,
+      bottomDateHigh = 20.0,
+      childPadding = 25.0;
 
   static const double defaultTextSize = 10.0;
 }

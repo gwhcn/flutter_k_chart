@@ -38,13 +38,15 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   List<KLineEntity>? datas;
-  bool showLoading = true;
-  MainState _mainState = MainState.MA;
-  SecondaryState _secondaryState = SecondaryState.MACD;
-  bool isLine = true;
   List<DepthEntity>? _bids, _asks;
   List<int> maDayList = [10, 100, 1000];
-  bool volHidden = false;
+
+  MainState _mainState = MainState.MA;
+  SecondaryState _secondaryState = SecondaryState.NONE;
+
+  bool volHidden = true;
+  bool showLoading = true;
+  bool isLine = false;
 
   @override
   void initState() {

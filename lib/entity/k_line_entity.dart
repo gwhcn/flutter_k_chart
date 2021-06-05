@@ -1,8 +1,10 @@
-
-
+import 'package:json_annotation/json_annotation.dart';
 
 import '../entity/k_entity.dart';
 
+part 'k_line_entity.g.dart';
+
+@JsonSerializable()
 class KLineEntity extends KEntity {
   late double open;
   late double high;
@@ -13,29 +15,21 @@ class KLineEntity extends KEntity {
   int? count;
   int? id;
 
-  KLineEntity.fromJson(Map<String, dynamic> json) {
-    open = json['open']?.toDouble();
-    high = json['high']?.toDouble();
-    low = json['low']?.toDouble();
-    close = json['close']?.toDouble();
-    vol = json['vol']?.toDouble();
-    amount = json['amount']?.toDouble();
-    count = json['count']?.toInt();
-    id = json['id']?.toInt();
-  }
+  KLineEntity({
+    required this.open,
+    required this.high,
+    required this.low,
+    required this.close,
+    required this.vol,
+    this.amount,
+    this.count,
+    this.id,
+  });
 
-  Map<String, dynamic> toJson(){
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['id'] = this.id;
-    data['open'] = this.open;
-    data['close'] = this.close;
-    data['high'] = this.high;
-    data['low'] = this.low;
-    data['vol'] = this.vol;
-    data['amount'] = this.amount;
-    data['count'] = this.count;
-    return data;
-  }
+  factory KLineEntity.fromJson(Map<String, dynamic> json) =>
+      _$KLineEntityFromJson(json);
+
+  Map<String, dynamic> toJson() => _$KLineEntityToJson(this);
 
   @override
   String toString() {
