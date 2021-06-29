@@ -19,7 +19,7 @@ abstract class BaseChartPainter extends CustomPainter {
   SecondaryState secondaryState;
 
   double scaleX = 1.0, scrollX = 0.0, selectX;
-  bool isLongPress = false;
+  bool showSelect = false;
   bool isLine;
 
   //3块区域大小与位置
@@ -48,7 +48,7 @@ abstract class BaseChartPainter extends CustomPainter {
     required this.chartStyle,
     required this.scaleX,
     required this.scrollX,
-    required this.isLongPress,
+    required this.showSelect,
     required this.selectX,
     this.mainState = MainState.MA,
     this.volState = VolState.VOL,
@@ -97,7 +97,7 @@ abstract class BaseChartPainter extends CustomPainter {
       drawRightText(canvas);
       drawRealTimePrice(canvas, size);
       drawDate(canvas, size);
-      if (isLongPress == true) drawCrossLineText(canvas, size);
+      if (showSelect) drawCrossLineText(canvas, size);
       drawText(canvas, datas.last, 5);
       drawMaxAndMin(canvas);
     }

@@ -61,6 +61,7 @@ class _KChartWidgetState extends State<KChartWidget>
 
   double _lastScale = 1.0;
   bool isScale = false, isDrag = false, isLongPress = false;
+  bool _showSelect = false;
 
   @override
   void initState() {
@@ -134,7 +135,7 @@ class _KChartWidgetState extends State<KChartWidget>
       scaleX: mScaleX,
       scrollX: mScrollX,
       selectX: mSelectX,
-      isLongPass: isLongPress,
+      showSelect: _showSelect,
       mainState: widget.mainState,
       volState: widget.volState,
       secondaryState: widget.secondaryState,
@@ -145,6 +146,13 @@ class _KChartWidgetState extends State<KChartWidget>
     );
 
     return GestureDetector(
+      onTap: () {
+        if (_showSelect) {
+          _showSelect = false;
+          mInfoWindowStream.add(null);
+          notifyChanged();
+        }
+      },
       onHorizontalDragDown: (details) {
         _stopAnimation();
         isDrag = true;
@@ -196,21 +204,20 @@ class _KChartWidgetState extends State<KChartWidget>
       },
       onLongPressStart: (details) {
         isLongPress = true;
-        if (mSelectX != details.globalPosition.dx) {
-          mSelectX = details.globalPosition.dx;
+        _showSelect = true;
+        if (mSelectX != details.localPosition.dx) {
+          mSelectX = details.localPosition.dx;
           notifyChanged();
         }
       },
       onLongPressMoveUpdate: (details) {
-        if (mSelectX != details.globalPosition.dx) {
-          mSelectX = details.globalPosition.dx;
+        if (mSelectX != details.localPosition.dx) {
+          mSelectX = details.localPosition.dx;
           notifyChanged();
         }
       },
       onLongPressEnd: (details) {
         isLongPress = false;
-        mInfoWindowStream.add(null);
-        notifyChanged();
       },
       child: Stack(
         children: <Widget>[

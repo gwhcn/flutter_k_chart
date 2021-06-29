@@ -25,7 +25,7 @@ class ChartPainter extends BaseChartPainter {
     required ChartStyle chartStyle,
     required scaleX,
     required scrollX,
-    required isLongPass,
+    required showSelect,
     required selectX,
     mainState,
     volState,
@@ -50,7 +50,7 @@ class ChartPainter extends BaseChartPainter {
             chartStyle: chartStyle,
             scaleX: scaleX,
             scrollX: scrollX,
-            isLongPress: isLongPass,
+            showSelect: showSelect,
             selectX: selectX,
             mainState: mainState,
             volState: volState,
@@ -147,7 +147,7 @@ class ChartPainter extends BaseChartPainter {
           lastPoint, curPoint, lastX, curX, size, canvas);
     }
 
-    if (isLongPress == true) drawCrossLine(canvas, size);
+    if (showSelect) drawCrossLine(canvas, size);
     canvas.restore();
   }
 
@@ -260,7 +260,7 @@ class ChartPainter extends BaseChartPainter {
   @override
   void drawText(Canvas canvas, KLineEntity data, double x) {
     //长按显示按中的数据
-    if (isLongPress) {
+    if (showSelect) {
       var index = calculateSelectedX(selectX);
       data = getItem(index);
     }
