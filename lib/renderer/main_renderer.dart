@@ -4,21 +4,36 @@ import '../k_chart_widget.dart' show MainState;
 import 'base_chart_renderer.dart';
 
 class MainRenderer extends BaseChartRenderer<CandleEntity> {
-  double mCandleWidth = ChartStyle.candleWidth;
-  double mCandleLineWidth = ChartStyle.candleLineWidth;
+  double get mCandleWidth => chartStyle.candleWidth;
+  double get mCandleLineWidth => chartStyle.candleLineWidth;
   MainState state;
   bool isLine;
 
   double _contentPadding = 12.0;
 
-  MainRenderer(Rect mainRect, double maxValue, double minValue,
-      double topPadding, this.state, this.isLine, double scaleX)
-      : super(
-            chartRect: mainRect,
-            maxValue: maxValue,
-            minValue: minValue,
-            topPadding: topPadding,
-            scaleX: scaleX) {
+  MainRenderer(
+    Rect mainRect,
+    double maxValue,
+    double minValue,
+    double topPadding,
+    this.state,
+    this.isLine,
+    double scaleX, {
+    required ChartColors chartColors,
+    required ChartStyle chartStyle,
+  })  : mLinePaint = Paint()
+          ..isAntiAlias = true
+          ..style = PaintingStyle.stroke
+          ..color = chartColors.kLineColor,
+        super(
+          chartColors: chartColors,
+          chartStyle: chartStyle,
+          chartRect: mainRect,
+          maxValue: maxValue,
+          minValue: minValue,
+          topPadding: topPadding,
+          scaleX: scaleX,
+        ) {
     var diff = maxValue - minValue; //计算差
     var newScaleY = (chartRect.height - _contentPadding) / diff; //内容区域高度/差=新的比例
     var newDiff = chartRect.height / newScaleY; //高/新比例=新的差
@@ -40,15 +55,15 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
           if (data.MA5Price != 0)
             TextSpan(
                 text: "MA5:${format(data.MA5Price!)}    ",
-                style: getTextStyle(ChartColors.ma5Color)),
+                style: getTextStyle(chartColors.ma5Color)),
           if (data.MA10Price != 0)
             TextSpan(
                 text: "MA10:${format(data.MA10Price!)}    ",
-                style: getTextStyle(ChartColors.ma10Color)),
+                style: getTextStyle(chartColors.ma10Color)),
           if (data.MA30Price != 0)
             TextSpan(
                 text: "MA30:${format(data.MA30Price!)}    ",
-                style: getTextStyle(ChartColors.ma30Color)),
+                style: getTextStyle(chartColors.ma30Color)),
         ],
       );
     } else if (state == MainState.BOLL) {
@@ -57,15 +72,15 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
           if (data.mb != 0)
             TextSpan(
                 text: "BOLL:${format(data.mb!)}    ",
-                style: getTextStyle(ChartColors.ma5Color)),
+                style: getTextStyle(chartColors.ma5Color)),
           if (data.up != 0)
             TextSpan(
                 text: "UP:${format(data.up!)}    ",
-                style: getTextStyle(ChartColors.ma10Color)),
+                style: getTextStyle(chartColors.ma10Color)),
           if (data.dn != 0)
             TextSpan(
                 text: "LB:${format(data.dn!)}    ",
-                style: getTextStyle(ChartColors.ma30Color)),
+                style: getTextStyle(chartColors.ma30Color)),
         ],
       );
     }
@@ -91,10 +106,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
   Shader? mLineFillShader;
   Path? mLinePath, mLineFillPath;
   final double mLineStrokeWidth = 1.0;
-  final Paint mLinePaint = Paint()
-    ..isAntiAlias = true
-    ..style = PaintingStyle.stroke
-    ..color = ChartColors.kLineColor;
+  final Paint mLinePaint;
   final Paint mLineFillPaint = Paint()
     ..style = PaintingStyle.fill
     ..isAntiAlias = true;
@@ -114,7 +126,7 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       tileMode: TileMode.clamp,
-      colors: ChartColors.kLineShadowColor,
+      colors: chartColors.kLineShadowColor,
     ).createShader(Rect.fromLTRB(
         chartRect.left, chartRect.top, chartRect.right, chartRect.bottom));
     mLineFillPaint..shader = mLineFillShader;
@@ -140,15 +152,15 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       double lastX, double curX) {
     if (lastPoint.MA5Price != 0) {
       drawLine(lastPoint.MA5Price!, curPoint.MA5Price!, canvas, lastX, curX,
-          ChartColors.ma5Color);
+          chartColors.ma5Color);
     }
     if (lastPoint.MA10Price != 0) {
       drawLine(lastPoint.MA10Price!, curPoint.MA10Price!, canvas, lastX, curX,
-          ChartColors.ma10Color);
+          chartColors.ma10Color);
     }
     if (lastPoint.MA30Price != 0) {
       drawLine(lastPoint.MA30Price!, curPoint.MA30Price!, canvas, lastX, curX,
-          ChartColors.ma30Color);
+          chartColors.ma30Color);
     }
   }
 
@@ -156,15 +168,15 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       Canvas canvas, double lastX, double curX) {
     if (lastPoint.up != 0) {
       drawLine(lastPoint.up!, curPoint.up!, canvas, lastX, curX,
-          ChartColors.ma10Color);
+          chartColors.ma10Color);
     }
     if (lastPoint.mb != 0) {
       drawLine(lastPoint.mb!, curPoint.mb!, canvas, lastX, curX,
-          ChartColors.ma5Color);
+          chartColors.ma5Color);
     }
     if (lastPoint.dn != 0) {
       drawLine(lastPoint.dn!, curPoint.dn!, canvas, lastX, curX,
-          ChartColors.ma30Color);
+          chartColors.ma30Color);
     }
   }
 
@@ -187,13 +199,13 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       }
     }
     if (open > close) {
-      chartPaint.color = ChartColors.upColor;
+      chartPaint.color = chartColors.upColor;
       canvas.drawRect(
           Rect.fromLTRB(curX - r, close, curX + r, open), chartPaint);
       canvas.drawRect(
           Rect.fromLTRB(curX - lineR, high, curX + lineR, low), chartPaint);
     } else {
-      chartPaint.color = ChartColors.dnColor;
+      chartPaint.color = chartColors.dnColor;
       canvas.drawRect(
           Rect.fromLTRB(curX - r, open, curX + r, close), chartPaint);
       canvas.drawRect(

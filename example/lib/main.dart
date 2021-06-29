@@ -38,6 +38,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  static const _chartColors = ChartColors(
+    vCrossGradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Colors.transparent,
+        Color(0xCC68707E),
+        Color(0xFF68707E),
+        Color(0xCC68707E),
+        Colors.transparent,
+      ],
+    ),
+  );
+
   List<KLineEntity> datas = [];
   bool showLoading = true;
   MainState _mainState = MainState.MA;
@@ -62,18 +76,6 @@ class _MyHomePageState extends State<MyHomePage> {
           .cast<DepthEntity>();
       initDepth(bids, asks);
     });
-
-    ChartColors.vCrossGradient = const LinearGradient(
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
-      colors: [
-        Colors.transparent,
-        Color(0xCC68707E),
-        Color(0xFF68707E),
-        Color(0xCC68707E),
-        Colors.transparent,
-      ],
-    );
   }
 
   void initDepth(List<DepthEntity>? bids, List<DepthEntity>? asks) {
@@ -114,6 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
               width: double.infinity,
               child: KChartWidget(
                 datas,
+                chartColors: _chartColors,
                 isLine: isLine,
                 mainState: _mainState,
                 secondaryState: _secondaryState,
@@ -141,7 +144,11 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             height: 230,
             width: double.infinity,
-            child: DepthChart(_bids, _asks),
+            child: DepthChart(
+              _bids,
+              _asks,
+              chartColors: _chartColors,
+            ),
           )
         ],
       ),

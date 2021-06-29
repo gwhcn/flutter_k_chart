@@ -17,6 +17,8 @@ enum SecondaryState { MACD, KDJ, RSI, WR, NONE }
 
 class KChartWidget extends StatefulWidget {
   final List<KLineEntity> datas;
+  final ChartColors chartColors;
+  final ChartStyle chartStyle;
   final MainState mainState;
   final VolState volState;
   final SecondaryState secondaryState;
@@ -27,6 +29,8 @@ class KChartWidget extends StatefulWidget {
 
   KChartWidget(
     this.datas, {
+    this.chartColors = const ChartColors(),
+    this.chartStyle = const ChartStyle(),
     this.mainState = MainState.MA,
     this.volState = VolState.VOL,
     this.secondaryState = SecondaryState.MACD,
@@ -125,6 +129,8 @@ class _KChartWidgetState extends State<KChartWidget>
 
     final painter = ChartPainter(
       datas: widget.datas,
+      chartColors: widget.chartColors,
+      chartStyle: widget.chartStyle,
       scaleX: mScaleX,
       scrollX: mScrollX,
       selectX: mSelectX,
@@ -272,9 +278,9 @@ class _KChartWidgetState extends State<KChartWidget>
               margin: const EdgeInsets.only(left: 10, right: 10, top: 25),
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
               decoration: BoxDecoration(
-                  color: ChartColors.markerBgColor,
+                  color: widget.chartColors.markerBgColor,
                   border: Border.all(
-                      color: ChartColors.markerBorderColor, width: 0.5)),
+                      color: widget.chartColors.markerBorderColor, width: 0.5)),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: List.generate(infoNames.length,
@@ -286,13 +292,13 @@ class _KChartWidgetState extends State<KChartWidget>
   }
 
   Widget _buildItem(String info, String infoName) {
-    Color color = Colors.white;
+    final Color color;
     if (info.startsWith("+"))
-      color = Colors.green;
+      color = widget.chartColors.makerUpColor;
     else if (info.startsWith("-"))
-      color = Colors.red;
+      color = widget.chartColors.makerDnColor;
     else
-      color = Colors.white;
+      color = widget.chartColors.makerNormalColor;
     return Container(
       constraints: const BoxConstraints(
           minWidth: 95, maxWidth: 110, maxHeight: 14.0, minHeight: 14.0),
@@ -301,13 +307,21 @@ class _KChartWidgetState extends State<KChartWidget>
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
-          Text("$infoName",
-              style: TextStyle(
-                  color: Colors.white, fontSize: ChartStyle.defaultTextSize)),
+          Text(
+            "$infoName",
+            style: TextStyle(
+              color: widget.chartColors.makerTitleColor,
+              fontSize: widget.chartStyle.defaultTextSize,
+            ),
+          ),
           SizedBox(width: 5),
-          Text(info,
-              style: TextStyle(
-                  color: color, fontSize: ChartStyle.defaultTextSize)),
+          Text(
+            info,
+            style: TextStyle(
+              color: color,
+              fontSize: widget.chartStyle.defaultTextSize,
+            ),
+          ),
         ],
       ),
     );

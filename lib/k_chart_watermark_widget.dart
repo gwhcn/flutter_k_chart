@@ -30,6 +30,7 @@ class KChartWatermarkWidget extends SingleChildRenderObjectWidget {
 
 class _WatermarkRenderBox extends RenderProxyBox {
   BaseChartPainter chartPainter;
+  ChartStyle get chartStyle => chartPainter.chartStyle;
 
   _WatermarkRenderBox({
     required this.chartPainter,
@@ -44,7 +45,7 @@ class _WatermarkRenderBox extends RenderProxyBox {
       // Calculation process is similar to [BaseChartPainter.initRect].
       // Updated [BaseChartPainter.initRect] should also update following.
       final displayHeight =
-          size.height - ChartStyle.topPadding - ChartStyle.bottomDateHigh;
+          size.height - chartStyle.topPadding - chartStyle.bottomDateHigh;
       final mainHeight;
       if (chartPainter.volState == VolState.NONE &&
           chartPainter.secondaryState == SecondaryState.NONE) {
@@ -56,7 +57,7 @@ class _WatermarkRenderBox extends RenderProxyBox {
         mainHeight = displayHeight * 0.6;
       }
       final childConstraints = constraints.tighten(
-        height: mainHeight + ChartStyle.topPadding,
+        height: mainHeight + chartStyle.topPadding,
       );
 
       child.layout(childConstraints);
