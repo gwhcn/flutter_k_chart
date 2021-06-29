@@ -20,6 +20,8 @@ class KChartWidget extends StatefulWidget {
   final VolState volState;
   final SecondaryState secondaryState;
   final bool isLine;
+  // 当屏幕滚动到尽头会调用，真为拉到屏幕右侧尽头，假为拉到屏幕左侧尽头
+  final void Function(bool)? onLoadMore;
 
   KChartWidget(
     this.datas, {
@@ -27,6 +29,7 @@ class KChartWidget extends StatefulWidget {
     this.volState = VolState.VOL,
     this.secondaryState = SecondaryState.MACD,
     this.isLine = false,
+    this.onLoadMore,
     int fractionDigits = 2,
   }) {
     NumberUtil.fractionDigits = fractionDigits;
@@ -144,7 +147,14 @@ class _KChartWidgetState extends State<KChartWidget>
           velocity: details.primaryVelocity!,
           tolerance: tolerance,
         );
-        _scrollXController.animateWith(simulation);
+        _scrollXController.animateWith(simulation).whenCompleteOrCancel(() {
+          final scrollX = _scrollXController.value;
+          if (scrollX <= 0) {
+            widget.onLoadMore?.call(true);
+          } else if (scrollX >= ChartPainter.maxScrollX) {
+            widget.onLoadMore?.call(false);
+          }
+        });
       },
       onHorizontalDragCancel: () => isDrag = false,
       onScaleStart: (_) {
