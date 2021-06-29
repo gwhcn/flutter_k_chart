@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_k_chart/chart_style.dart';
 import 'package:flutter_k_chart/flutter_k_chart.dart';
 import 'package:flutter_k_chart/generated/l10n.dart' as k_chart;
 import 'package:flutter_k_chart/k_chart_widget.dart';
@@ -61,6 +62,18 @@ class _MyHomePageState extends State<MyHomePage> {
           .cast<DepthEntity>();
       initDepth(bids, asks);
     });
+
+    ChartColors.vCrossGradient = const LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Colors.transparent,
+        Color(0xCC68707E),
+        Color(0xFF68707E),
+        Color(0xCC68707E),
+        Colors.transparent,
+      ],
+    );
   }
 
   void initDepth(List<DepthEntity>? bids, List<DepthEntity>? asks) {

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' show Color;
+import 'package:flutter/material.dart' show Color, Gradient;
 
 class ChartColors {
   ChartColors._();
@@ -52,7 +52,7 @@ class ChartColors {
   static const Color simpleLineUpColor = Color(0xff6CB0A6);
   static const Color simpleLineDnColor = Color(0xffC15466);
 
-
+  static Gradient? vCrossGradient;
 }
 
 class ChartStyle {

@@ -273,10 +273,13 @@ class ChartPainter extends BaseChartPainter {
   void drawCrossLine(Canvas canvas, Size size) {
     var index = calculateSelectedX(selectX);
     KLineEntity point = getItem(index);
-    Paint paintY = Paint()
-      ..color = Colors.white12
+    final paintY = Paint()
+      ..shader = ChartColors.vCrossGradient?.createShader(Offset.zero & size)
       ..strokeWidth = ChartStyle.vCrossWidth
       ..isAntiAlias = true;
+    if (paintY.shader == null) {
+      paintY.color = Colors.white12;
+    }
     double x = getX(index);
     double y = getMainY(point.close);
     // k线图竖线
