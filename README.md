@@ -37,6 +37,15 @@ Container(
     mainState: _mainState,//控制主视图指标线
     secondaryState: _secondaryState,//控制副视图指标线
     volState: VolState.VOL,//控制成交量指标线
+    watermark: const Align(
+      alignment: Alignment.bottomLeft,
+      child: Image(
+        color: Color(0x1A000000),
+        colorBlendMode: BlendMode.dstIn,
+        image: NetworkImage(
+          'https://i-invdn-com.investing.com/ico_flags/80x80/v32/dogecoin.png'),
+        ),
+    ),// 主视图水印
     fractionDigits: 4,//保留小数位数
   ),
  )

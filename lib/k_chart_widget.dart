@@ -6,6 +6,7 @@ import 'package:flutter_k_chart/generated/l10n.dart';
 import 'chart_style.dart';
 import 'entity/info_window_entity.dart';
 import 'entity/k_line_entity.dart';
+import 'k_chart_watermark_widget.dart';
 import 'renderer/chart_painter.dart';
 import 'utils/date_format_util.dart' hide S;
 import 'utils/number_util.dart';
@@ -22,6 +23,7 @@ class KChartWidget extends StatefulWidget {
   final bool isLine;
   // 当屏幕滚动到尽头会调用，真为拉到屏幕右侧尽头，假为拉到屏幕左侧尽头
   final void Function(bool)? onLoadMore;
+  final Widget? watermark;
 
   KChartWidget(
     this.datas, {
@@ -30,6 +32,7 @@ class KChartWidget extends StatefulWidget {
     this.secondaryState = SecondaryState.MACD,
     this.isLine = false,
     this.onLoadMore,
+    this.watermark,
     int fractionDigits = 2,
   }) {
     NumberUtil.fractionDigits = fractionDigits;
@@ -119,6 +122,22 @@ class _KChartWidgetState extends State<KChartWidget>
       mScrollX = mSelectX = 0.0;
       mScaleX = 1.0;
     }
+
+    final painter = ChartPainter(
+      datas: widget.datas,
+      scaleX: mScaleX,
+      scrollX: mScrollX,
+      selectX: mSelectX,
+      isLongPass: isLongPress,
+      mainState: widget.mainState,
+      volState: widget.volState,
+      secondaryState: widget.secondaryState,
+      isLine: widget.isLine,
+      sink: mInfoWindowStream.sink,
+      opacity: _animation.value,
+      controller: _controller,
+    );
+
     return GestureDetector(
       onHorizontalDragDown: (details) {
         _stopAnimation();
@@ -191,19 +210,11 @@ class _KChartWidgetState extends State<KChartWidget>
         children: <Widget>[
           CustomPaint(
             size: const Size(double.infinity, double.infinity),
-            painter: ChartPainter(
-                datas: widget.datas,
-                scaleX: mScaleX,
-                scrollX: mScrollX,
-                selectX: mSelectX,
-                isLongPass: isLongPress,
-                mainState: widget.mainState,
-                volState: widget.volState,
-                secondaryState: widget.secondaryState,
-                isLine: widget.isLine,
-                sink: mInfoWindowStream.sink,
-                opacity: _animation.value,
-                controller: _controller),
+            painter: painter,
+            child: KChartWatermarkWidget(
+              chartPainter: painter,
+              child: widget.watermark,
+            ),
           ),
           _buildInfoDialog()
         ],
