@@ -146,14 +146,12 @@ class _KChartWidgetState extends State<KChartWidget>
     );
 
     return GestureDetector(
-      onTap: () {
+      onHorizontalDragDown: (details) {
         if (_showSelect) {
           _showSelect = false;
           mInfoWindowStream.add(null);
           notifyChanged();
         }
-      },
-      onHorizontalDragDown: (details) {
         _stopAnimation();
         isDrag = true;
       },
