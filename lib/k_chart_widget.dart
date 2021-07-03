@@ -286,10 +286,13 @@ class _KChartWidgetState extends State<KChartWidget>
                   color: widget.chartColors.markerBgColor,
                   border: Border.all(
                       color: widget.chartColors.markerBorderColor, width: 0.5)),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(infoNames.length,
-                    (i) => _buildItem(infos[i].toString(), infoNames[i])),
+              child: IntrinsicWidth(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: List.generate(infoNames.length,
+                          (i) => _buildItem(infos[i].toString(), infoNames[i])),
+                ),
               ),
             ),
           );
@@ -306,7 +309,7 @@ class _KChartWidgetState extends State<KChartWidget>
       color = widget.chartColors.makerNormalColor;
     return Container(
       constraints: const BoxConstraints(
-          minWidth: 95, maxWidth: 110, maxHeight: 14.0, minHeight: 14.0),
+          minWidth: 95, maxHeight: 14.0, minHeight: 14.0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
