@@ -110,7 +110,11 @@ class _KChartWidgetState extends State<KChartWidget>
   @override
   void didUpdateWidget(KChartWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.datas != widget.datas) mScrollX = mSelectX = 0.0;
+
+    if (oldWidget.datas != widget.datas) {
+      mScrollX = mSelectX = 0.0;
+      _showSelect = false;
+    }
   }
 
   @override
