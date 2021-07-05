@@ -263,8 +263,7 @@ class _KChartWidgetState extends State<KChartWidget>
     return StreamBuilder<InfoWindowEntity?>(
         stream: mInfoWindowStream.stream,
         builder: (context, snapshot) {
-          if (!isLongPress ||
-              widget.isLine == true ||
+          if (widget.isLine == true ||
               !snapshot.hasData ||
               snapshot.data?.kLineEntity == null) return const SizedBox();
           KLineEntity entity = snapshot.data!.kLineEntity;
@@ -295,7 +294,7 @@ class _KChartWidgetState extends State<KChartWidget>
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: List.generate(infoNames.length,
-                          (i) => _buildItem(infos[i].toString(), infoNames[i])),
+                      (i) => _buildItem(infos[i].toString(), infoNames[i])),
                 ),
               ),
             ),
@@ -312,8 +311,8 @@ class _KChartWidgetState extends State<KChartWidget>
     else
       color = widget.chartColors.makerNormalColor;
     return Container(
-      constraints: const BoxConstraints(
-          minWidth: 95, maxHeight: 14.0, minHeight: 14.0),
+      constraints:
+          const BoxConstraints(minWidth: 95, maxHeight: 14.0, minHeight: 14.0),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
