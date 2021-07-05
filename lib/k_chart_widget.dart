@@ -114,6 +114,7 @@ class _KChartWidgetState extends State<KChartWidget>
     if (oldWidget.datas != widget.datas) {
       mScrollX = mSelectX = 0.0;
       _showSelect = false;
+      mInfoWindowStream.add(null);
     }
   }
 
