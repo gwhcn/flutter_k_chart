@@ -242,6 +242,9 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
 
   @override
   void drawGrid(Canvas canvas, int gridRows, int gridColumns) {
+    canvas
+      ..save()
+      ..clipRect(chartRect);
 //    final int gridRows = 4, gridColumns = 4;
     double rowSpace = chartRect.height / gridRows;
     for (int i = 0; i <= gridRows; i++) {
@@ -253,5 +256,6 @@ class MainRenderer extends BaseChartRenderer<CandleEntity> {
       canvas.drawLine(Offset(columnSpace * i, topPadding / 3),
           Offset(columnSpace * i, chartRect.bottom), gridPaint);
     }
+    canvas.restore();
   }
 }
