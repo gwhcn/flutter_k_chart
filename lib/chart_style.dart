@@ -141,6 +141,8 @@ class ChartStyle {
 
   final double defaultTextSize;
 
+  final bool klineOverflow;
+
   const ChartStyle({
     this.pointWidth = 11.0,
     this.candleWidth = 8.5,
@@ -155,5 +157,6 @@ class ChartStyle {
     this.bottomDateHigh = 20.0,
     this.childPadding = 25.0,
     this.defaultTextSize = 10.0,
+    this.klineOverflow = true,
   });
 }

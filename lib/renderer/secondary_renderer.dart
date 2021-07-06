@@ -169,9 +169,6 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
 
   @override
   void drawGrid(Canvas canvas, int gridRows, int gridColumns) {
-    canvas
-      ..save()
-      ..clipRect(chartRect);
     canvas.drawLine(Offset(0, chartRect.bottom),
         Offset(chartRect.width, chartRect.bottom), gridPaint);
     double columnSpace = chartRect.width / gridColumns;
@@ -180,6 +177,5 @@ class SecondaryRenderer extends BaseChartRenderer<MACDEntity> {
       canvas.drawLine(Offset(columnSpace * i, chartRect.top - topPadding),
           Offset(columnSpace * i, chartRect.bottom), gridPaint);
     }
-    canvas.restore();
   }
 }

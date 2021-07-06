@@ -37,7 +37,13 @@ abstract class BaseChartRenderer<T> {
     scaleY = chartRect.height / (maxValue - minValue);
   }
 
-  double getY(double y) => (maxValue - y) * scaleY + chartRect.top;
+  double getY(double y) {
+    final value = (maxValue - y) * scaleY + chartRect.top;
+    if (chartStyle.overflowVisible) {
+      return value;
+    }
+    return value.clamp(chartRect.top, chartRect.bottom);
+  }
 
   String format(double n) {
     return NumberUtil.format(n);
