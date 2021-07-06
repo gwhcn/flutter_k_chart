@@ -39,7 +39,7 @@ abstract class BaseChartRenderer<T> {
 
   double getY(double y) {
     final value = (maxValue - y) * scaleY + chartRect.top;
-    if (chartStyle.overflowVisible) {
+    if (chartStyle.klineOverflow) {
       return value;
     }
     return value.clamp(chartRect.top, chartRect.bottom);
