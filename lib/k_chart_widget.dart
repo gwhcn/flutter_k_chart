@@ -23,6 +23,8 @@ class KChartWidget extends StatefulWidget {
   final VolState volState;
   final SecondaryState secondaryState;
   final bool isLine;
+  final double initialScaleX;
+  final void Function(double)? onScaleXUpdated;
   // 当屏幕滚动到尽头会调用，真为拉到屏幕右侧尽头，假为拉到屏幕左侧尽头
   final void Function(bool)? onLoadMore;
   final Widget? watermark;
@@ -35,9 +37,11 @@ class KChartWidget extends StatefulWidget {
     this.volState = VolState.VOL,
     this.secondaryState = SecondaryState.MACD,
     this.isLine = false,
+    int fractionDigits = 2,
+    this.initialScaleX = 1.0,
+    this.onScaleXUpdated,
     this.onLoadMore,
     this.watermark,
-    int fractionDigits = 2,
   }) {
     NumberUtil.fractionDigits = fractionDigits;
   }
@@ -66,6 +70,8 @@ class _KChartWidgetState extends State<KChartWidget>
   @override
   void initState() {
     super.initState();
+
+    mScaleX = widget.initialScaleX;
     mInfoWindowStream = StreamController();
     _controller = AnimationController(
         duration: const Duration(milliseconds: 850), vsync: this);
@@ -130,7 +136,8 @@ class _KChartWidgetState extends State<KChartWidget>
   Widget build(BuildContext context) {
     if (widget.datas.isEmpty) {
       mScrollX = mSelectX = 0.0;
-      mScaleX = 1.0;
+      mScaleX = widget.initialScaleX;
+      widget.onScaleXUpdated?.call(widget.initialScaleX);
     }
 
     final painter = ChartPainter(
@@ -199,6 +206,7 @@ class _KChartWidgetState extends State<KChartWidget>
       onScaleUpdate: (details) {
         if (isDrag || isLongPress) return;
         mScaleX = (_lastScale * details.scale).clamp(0.5, 2.2);
+        widget.onScaleXUpdated?.call(mScaleX);
         notifyChanged();
       },
       onScaleEnd: (_) {
