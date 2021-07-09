@@ -232,12 +232,14 @@ class _KChartWidgetState extends State<KChartWidget>
       },
       child: Stack(
         children: <Widget>[
-          CustomPaint(
-            size: const Size(double.infinity, double.infinity),
-            painter: painter,
-            child: KChartWatermarkWidget(
-              chartPainter: painter,
-              child: widget.watermark,
+          RepaintBoundary(
+            child: CustomPaint(
+              size: const Size(double.infinity, double.infinity),
+              painter: painter,
+              child: KChartWatermarkWidget(
+                chartPainter: painter,
+                child: widget.watermark,
+              ),
             ),
           ),
           _buildInfoDialog()

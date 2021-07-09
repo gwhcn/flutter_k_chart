@@ -63,4 +63,7 @@ class _WatermarkRenderBox extends RenderProxyBox {
       child.layout(childConstraints);
     }
   }
+
+  @override
+  bool get isRepaintBoundary => true;
 }
