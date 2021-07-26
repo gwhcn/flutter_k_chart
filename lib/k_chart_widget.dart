@@ -258,22 +258,24 @@ class _KChartWidgetState extends State<KChartWidget>
 
   void notifyChanged() => setState(() {});
 
-  List<String> infoNames = [
-    S.current.date,
-    S.current.open,
-    S.current.high,
-    S.current.low,
-    S.current.close,
-    S.current.change,
-    S.current.change_,
-    S.current.executed,
-  ];
   late List infos;
 
   Widget _buildInfoDialog() {
     return StreamBuilder<InfoWindowEntity?>(
         stream: mInfoWindowStream.stream,
         builder: (context, snapshot) {
+          final sInstance = S.of(context);
+          final infoNames = [
+            sInstance.date,
+            sInstance.open,
+            sInstance.high,
+            sInstance.low,
+            sInstance.close,
+            sInstance.change,
+            sInstance.change_,
+            sInstance.executed,
+          ];
+
           if (widget.isLine == true ||
               !snapshot.hasData ||
               snapshot.data?.kLineEntity == null) return const SizedBox();
