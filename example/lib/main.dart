@@ -21,8 +21,9 @@ class MyApp extends StatelessWidget {
       ),
       // supportedLocales: [const Locale('zh', 'CN')],
       localizationsDelegates: [
-        k_chart.S.delegate //国际话
+        k_chart.S.delegate //国际化
       ],
+      supportedLocales: k_chart.S.delegate.supportedLocales,
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
