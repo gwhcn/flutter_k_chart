@@ -19,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // supportedLocales: [const Locale('zh', 'CN')],
+      locale: Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
       localizationsDelegates: [
         k_chart.S.delegate //国际化
       ],
