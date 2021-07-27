@@ -1,12 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_k_chart/chart_style.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_k_chart/flutter_k_chart.dart';
-import 'package:flutter_k_chart/generated/l10n.dart' as k_chart;
-import 'package:flutter_k_chart/k_chart_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
@@ -19,11 +19,18 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      locale: const Locale.fromSubtags(languageCode: 'zh', countryCode: 'CN'),
-      localizationsDelegates: [
-        k_chart.S.delegate //国际化
+      locale: const Locale.fromSubtags(languageCode: 'en'),
+      localizationsDelegates: const [
+        KChartS.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
       ],
-      supportedLocales: k_chart.S.delegate.supportedLocales,
+      supportedLocales: const [
+        Locale.fromSubtags(languageCode: 'en'),
+        Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+        Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
+      ],
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }

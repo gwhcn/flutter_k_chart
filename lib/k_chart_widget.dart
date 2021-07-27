@@ -2,10 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
-import 'package:flutter_k_chart/generated/l10n.dart';
+
 import 'chart_style.dart';
 import 'entity/info_window_entity.dart';
 import 'entity/k_line_entity.dart';
+import 'intl/s.dart';
 import 'k_chart_watermark_widget.dart';
 import 'renderer/chart_painter.dart';
 import 'utils/date_format_util.dart' hide S;
@@ -264,16 +265,16 @@ class _KChartWidgetState extends State<KChartWidget>
     return StreamBuilder<InfoWindowEntity?>(
         stream: mInfoWindowStream.stream,
         builder: (context, snapshot) {
-          final sInstance = S.of(context);
+          final s = KChartS.of(context);
           final infoNames = [
-            sInstance.date,
-            sInstance.open,
-            sInstance.high,
-            sInstance.low,
-            sInstance.close,
-            sInstance.change,
-            sInstance.change_,
-            sInstance.executed,
+            s.date,
+            s.open,
+            s.high,
+            s.low,
+            s.close,
+            s.change,
+            s.change_,
+            s.executed,
           ];
 
           if (widget.isLine == true ||
