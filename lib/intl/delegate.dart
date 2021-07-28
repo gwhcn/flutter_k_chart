@@ -25,7 +25,6 @@ KChartS _loadZhHant() => KChartS(
     );
 
 KChartS _loadMessages(Locale locale) {
-  print(locale);
   switch (locale.languageCode) {
     case 'zh':
       switch (locale.scriptCode) {
