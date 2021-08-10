@@ -68,7 +68,7 @@ class _KChartWidgetState extends State<KChartWidget>
   bool _showSelect = false;
 
   // 记录最后两次事件，用以在Up时计算滑动距离
-  final _pointerEventSet = PointerEventSet();
+  final _pointerEventSet = _PointerEventSet();
 
   @override
   void initState() {
@@ -362,7 +362,7 @@ class _KChartWidgetState extends State<KChartWidget>
   }
 }
 
-class PointerEventSet {
+class _PointerEventSet {
   late final set = <int, List<PointerEvent>>{};
 
   List<PointerEvent> add(PointerEvent event) {
