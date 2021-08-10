@@ -1,16 +1,15 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/physics.dart';
+import 'package:flutter_k_chart/entity/info_window_entity.dart';
+import 'package:flutter_k_chart/flutter_k_chart.dart';
+import 'package:flutter_k_chart/renderer/chart_painter.dart';
+import 'package:flutter_k_chart/utils/date_format_util.dart';
+import 'package:flutter_k_chart/utils/number_util.dart';
 
-import 'chart_style.dart';
-import 'entity/info_window_entity.dart';
-import 'entity/k_line_entity.dart';
-import 'intl/s.dart';
 import 'k_chart_watermark_widget.dart';
-import 'renderer/chart_painter.dart';
-import 'utils/date_format_util.dart' hide S;
-import 'utils/number_util.dart';
 
 enum MainState { MA, BOLL, NONE }
 enum VolState { VOL, NONE }
@@ -65,8 +64,11 @@ class _KChartWidgetState extends State<KChartWidget>
   }
 
   double _lastScale = 1.0;
-  bool isScale = false, isDrag = false, isLongPress = false;
+  bool isLongPress = false;
   bool _showSelect = false;
+
+  // 记录最后两次事件，用以在Up时计算滑动距离
+  final _pointerEventSet = PointerEventSet();
 
   @override
   void initState() {
@@ -96,13 +98,6 @@ class _KChartWidgetState extends State<KChartWidget>
         mScrollX = ChartPainter.maxScrollX;
         _stopAnimation();
       } else {
-        notifyChanged();
-      }
-    });
-    _scrollXController.addStatusListener((status) {
-      if (status == AnimationStatus.completed ||
-          status == AnimationStatus.dismissed) {
-        isDrag = false;
         notifyChanged();
       }
     });
@@ -157,61 +152,29 @@ class _KChartWidgetState extends State<KChartWidget>
       opacity: _animation.value,
       controller: _controller,
     );
-
-    return GestureDetector(
-      onHorizontalDragDown: (details) {
-        if (_showSelect) {
-          _showSelect = false;
-          mInfoWindowStream.add(null);
-          notifyChanged();
-        }
-        _stopAnimation();
-        isDrag = true;
-      },
-      onHorizontalDragUpdate: (details) {
-        if (isScale || isLongPress || details.primaryDelta == null) return;
-        mScrollX = (details.primaryDelta! / mScaleX + mScrollX)
-            .clamp(0.0, ChartPainter.maxScrollX)
-            .toDouble();
-        notifyChanged();
-      },
-      onHorizontalDragEnd: (DragEndDetails details) {
-        // isDrag = false;
-        final Tolerance tolerance = Tolerance(
-          velocity:
-              1.0 / (0.050 * WidgetsBinding.instance!.window.devicePixelRatio),
-          // logical pixels per second
-          distance: 1.0 /
-              WidgetsBinding
-                  .instance!.window.devicePixelRatio, // logical pixels
-        );
-        if (details.primaryVelocity == null) return;
-        ClampingScrollSimulation simulation = ClampingScrollSimulation(
-          position: mScrollX,
-          velocity: details.primaryVelocity!,
-          tolerance: tolerance,
-        );
-        _scrollXController.animateWith(simulation).whenCompleteOrCancel(() {
-          final scrollX = _scrollXController.value;
-          if (scrollX <= 0) {
-            widget.onLoadMore?.call(true);
-          } else if (scrollX >= ChartPainter.maxScrollX) {
-            widget.onLoadMore?.call(false);
-          }
-        });
-      },
-      onHorizontalDragCancel: () => isDrag = false,
-      onScaleStart: (_) {
-        isScale = true;
-      },
+    Widget child = Stack(
+      children: <Widget>[
+        RepaintBoundary(
+          child: CustomPaint(
+            size: const Size(double.infinity, double.infinity),
+            painter: painter,
+            child: KChartWatermarkWidget(
+              chartPainter: painter,
+              child: widget.watermark,
+            ),
+          ),
+        ),
+        _buildInfoDialog()
+      ],
+    );
+    child = GestureDetector(
       onScaleUpdate: (details) {
-        if (isDrag || isLongPress) return;
+        if (isLongPress) return;
         mScaleX = (_lastScale * details.scale).clamp(0.5, 2.2);
         widget.onScaleXUpdated?.call(mScaleX);
         notifyChanged();
       },
-      onScaleEnd: (_) {
-        isScale = false;
+      onScaleEnd: (details) {
         _lastScale = mScaleX;
       },
       onLongPressStart: (details) {
@@ -231,28 +194,69 @@ class _KChartWidgetState extends State<KChartWidget>
       onLongPressEnd: (details) {
         isLongPress = false;
       },
-      child: Stack(
-        children: <Widget>[
-          RepaintBoundary(
-            child: CustomPaint(
-              size: const Size(double.infinity, double.infinity),
-              painter: painter,
-              child: KChartWatermarkWidget(
-                chartPainter: painter,
-                child: widget.watermark,
-              ),
+      child: child,
+    );
+
+    return Listener(
+      onPointerDown: (event) {
+        _pointerEventSet.add(event);
+
+        if (_showSelect) {
+          _showSelect = false;
+          mInfoWindowStream.add(null);
+          notifyChanged();
+        }
+        _stopAnimation();
+      },
+      onPointerMove: (event) {
+        _pointerEventSet.add(event);
+
+        if (!isLongPress) {
+          mScrollX = (event.delta.dx / mScaleX + mScrollX)
+              .clamp(0.0, ChartPainter.maxScrollX)
+              .toDouble();
+          notifyChanged();
+        }
+      },
+      onPointerUp: (event) {
+        final prevEvent = _pointerEventSet.getPrevious(event.device);
+        if (prevEvent != null) {
+          final velocity = const Duration(seconds: 1).inMicroseconds /
+              (event.timeStamp - prevEvent.timeStamp).inMicroseconds *
+              (event.position - prevEvent.position).dx;
+          final devicePixelRatio =
+              WidgetsBinding.instance!.window.devicePixelRatio;
+          final simulation = ClampingScrollSimulation(
+            position: mScrollX,
+            velocity: velocity,
+            tolerance: Tolerance(
+              velocity: 1.0 / (0.050 * devicePixelRatio),
+              // logical pixels per second
+              distance: 1.0 / devicePixelRatio, // logical pixels
             ),
-          ),
-          _buildInfoDialog()
-        ],
-      ),
+          );
+          _scrollXController.animateWith(simulation).whenCompleteOrCancel(() {
+            final scrollX = _scrollXController.value;
+            if (scrollX <= 0) {
+              widget.onLoadMore?.call(true);
+            } else if (scrollX >= ChartPainter.maxScrollX) {
+              widget.onLoadMore?.call(false);
+            }
+          });
+        }
+
+        _pointerEventSet.clear(event.device);
+      },
+      onPointerCancel: (event) {
+        _pointerEventSet.clear(event.device);
+      },
+      child: child,
     );
   }
 
   void _stopAnimation() {
     if (_scrollXController.isAnimating) {
       _scrollXController.stop();
-      isDrag = false;
       notifyChanged();
     }
   }
@@ -355,5 +359,27 @@ class _KChartWidgetState extends State<KChartWidget>
   String getDate(int date) {
     return dateFormat(DateTime.fromMillisecondsSinceEpoch(date * 1000),
         [yy, '-', mm, '-', dd, ' ', HH, ':', nn]);
+  }
+}
+
+class PointerEventSet {
+  late final set = <int, List<PointerEvent>>{};
+
+  List<PointerEvent> add(PointerEvent event) {
+    final histories = set.putIfAbsent(event.device, () => []);
+    if (histories.length > 1) {
+      histories.removeAt(0);
+    }
+    histories.add(event);
+
+    return histories;
+  }
+
+  PointerEvent? getPrevious(int device) {
+    return set[device]?.firstOrNull;
+  }
+
+  List<PointerEvent>? clear(int device) {
+    return set.remove(device);
   }
 }

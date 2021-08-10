@@ -1,9 +1,7 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-
-import 'chart_style.dart';
-import 'flutter_k_chart.dart';
-import 'renderer/base_chart_painter.dart';
+import 'package:flutter_k_chart/flutter_k_chart.dart';
+import 'package:flutter_k_chart/renderer/base_chart_painter.dart';
 
 class KChartWatermarkWidget extends SingleChildRenderObjectWidget {
   final BaseChartPainter chartPainter;

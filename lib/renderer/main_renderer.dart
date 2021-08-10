@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../entity/candle_entity.dart';
-import '../k_chart_widget.dart' show MainState;
+import '../widget/k_chart_widget.dart' show MainState;
 import 'base_chart_renderer.dart';
 
 class MainRenderer extends BaseChartRenderer<CandleEntity> {

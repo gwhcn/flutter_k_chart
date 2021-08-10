@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import '../entity/macd_entity.dart';
-import '../k_chart_widget.dart' show SecondaryState;
+import '../widget/k_chart_widget.dart' show SecondaryState;
 
 import 'base_chart_renderer.dart';
 

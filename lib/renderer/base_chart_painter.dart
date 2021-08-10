@@ -6,7 +6,7 @@ import 'package:flutter/material.dart'
 import 'package:flutter_k_chart/utils/date_format_util.dart';
 import 'package:flutter_k_chart/utils/number_util.dart';
 import '../entity/k_line_entity.dart';
-import '../k_chart_widget.dart';
+import '../widget/k_chart_widget.dart';
 import '../chart_style.dart' show ChartColors, ChartStyle;
 
 abstract class BaseChartPainter extends CustomPainter {
