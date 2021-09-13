@@ -179,11 +179,6 @@ class _KChartWidgetState extends State<KChartWidget>
       },
       onLongPressStart: (details) {
         isLongPress = true;
-        _showSelect = true;
-        if (mSelectX != details.localPosition.dx) {
-          mSelectX = details.localPosition.dx;
-          notifyChanged();
-        }
       },
       onLongPressMoveUpdate: (details) {
         if (mSelectX != details.localPosition.dx) {
@@ -201,17 +196,30 @@ class _KChartWidgetState extends State<KChartWidget>
       onPointerDown: (event) {
         _pointerEventSet.add(event);
 
-        if (_showSelect) {
-          _showSelect = false;
-          mInfoWindowStream.add(null);
+        _showSelect = true;
+        if (mSelectX != event.localPosition.dx) {
+          mSelectX = event.localPosition.dx;
           notifyChanged();
         }
+
         _stopAnimation();
       },
       onPointerMove: (event) {
         _pointerEventSet.add(event);
 
         if (!isLongPress) {
+          if (_showSelect) {
+            final distance = (event.localPosition.dx - mSelectX).abs();
+            if (distance < widget.chartStyle.candleWidth) {
+              // 屏蔽抖动，防止down选中之后，紧接又一个move取消选中的情况发生
+              return;
+            }
+
+            _showSelect = false;
+            mInfoWindowStream.add(null);
+            notifyChanged();
+          }
+
           mScrollX = (event.delta.dx / mScaleX + mScrollX)
               .clamp(0.0, ChartPainter.maxScrollX)
               .toDouble();
