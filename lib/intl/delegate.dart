@@ -55,7 +55,7 @@ class KChartLocalizationsDelegate extends LocalizationsDelegate<KChartS> {
 
   @override
   bool isSupported(Locale locale) {
-    return supportedLanguage.contains(locale.languageCode);
+    return true;
   }
 
   @override
