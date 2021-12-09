@@ -129,6 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainState: _mainState,
                 secondaryState: _secondaryState,
                 volState: VolState.VOL,
+                crossLine: CrossLine.GESTURE,
                 watermark: const Align(
                   alignment: Alignment.bottomLeft,
                   child: Image(

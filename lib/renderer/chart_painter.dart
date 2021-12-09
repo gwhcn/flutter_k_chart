@@ -1,6 +1,7 @@
 import 'dart:async' show StreamSink;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_k_chart/flutter_k_chart.dart';
 import '../entity/k_line_entity.dart';
 import '../utils/date_format_util.dart';
 import '../entity/info_window_entity.dart';
@@ -26,10 +27,11 @@ class ChartPainter extends BaseChartPainter {
     required scaleX,
     required scrollX,
     required showSelect,
-    required selectX,
+    required selectPosition,
     mainState,
     volState,
     secondaryState,
+    crossLine,
     this.sink,
     bool isLine = false,
     this.controller,
@@ -45,17 +47,19 @@ class ChartPainter extends BaseChartPainter {
           ..style = PaintingStyle.stroke
           ..color = chartColors.markerBorderColor,
         super(
-            datas: datas,
-            chartColors: chartColors,
-            chartStyle: chartStyle,
-            scaleX: scaleX,
-            scrollX: scrollX,
-            showSelect: showSelect,
-            selectX: selectX,
-            mainState: mainState,
-            volState: volState,
-            secondaryState: secondaryState,
-            isLine: isLine);
+          datas: datas,
+          chartColors: chartColors,
+          chartStyle: chartStyle,
+          scaleX: scaleX,
+          scrollX: scrollX,
+          showSelect: showSelect,
+          selectPosition: selectPosition,
+          mainState: mainState,
+          volState: volState,
+          secondaryState: secondaryState,
+          crossLine: crossLine,
+          isLine: isLine,
+        );
 
   @override
   void initChartRenderer() {
@@ -184,11 +188,21 @@ class ChartPainter extends BaseChartPainter {
 
   @override
   void drawCrossLineText(Canvas canvas, Size size) {
-    var index = calculateSelectedX(selectX);
+    var index = calculateSelectedX(selectPosition.dx);
     KLineEntity point = getItem(index);
 
+    final String text;
+    switch (crossLine) {
+      case CrossLine.DATA:
+        text = format(point.close);
+        break;
+      case CrossLine.GESTURE:
+        final value = mMainRenderer.getValue(selectPosition.dy);
+        text = format(value);
+        break;
+    }
     TextPainter tp = getTextPainter(
-      format(point.close),
+      text,
       color: chartColors.crossTextColor,
     );
     double textHeight = tp.height;
@@ -197,7 +211,9 @@ class ChartPainter extends BaseChartPainter {
     double w1 = 5;
     double w2 = 3;
     double r = textHeight / 2 + w2;
-    double y = getMainY(point.close);
+    double y = crossLine == CrossLine.GESTURE
+        ? selectPosition.dy
+        : getMainY(point.close);
     double x;
     bool isLeft = false;
     if (translateXtoX(getX(index)) < mWidth / 2) {
@@ -261,7 +277,7 @@ class ChartPainter extends BaseChartPainter {
   void drawText(Canvas canvas, KLineEntity data, double x) {
     //长按显示按中的数据
     if (showSelect) {
-      var index = calculateSelectedX(selectX);
+      var index = calculateSelectedX(selectPosition.dx);
       data = getItem(index);
     }
     //松开显示最后一条数据
@@ -302,7 +318,7 @@ class ChartPainter extends BaseChartPainter {
 
   ///画交叉线
   void drawCrossLine(Canvas canvas, Size size) {
-    var index = calculateSelectedX(selectX);
+    var index = calculateSelectedX(selectPosition.dx);
     KLineEntity point = getItem(index);
     final paintY = Paint()
       ..shader = chartColors.vCrossGradient?.createShader(Offset.zero & size)
@@ -312,7 +328,9 @@ class ChartPainter extends BaseChartPainter {
       paintY.color = Colors.white12;
     }
     double x = getX(index);
-    double y = getMainY(point.close);
+    double y = crossLine == CrossLine.GESTURE
+        ? selectPosition.dy
+        : getMainY(point.close);
     // k线图竖线
     canvas.drawLine(Offset(x, chartStyle.topPadding),
         Offset(x, size.height - chartStyle.bottomDateHigh), paintY);

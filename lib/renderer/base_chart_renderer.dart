@@ -37,12 +37,16 @@ abstract class BaseChartRenderer<T> {
     scaleY = chartRect.height / (maxValue - minValue);
   }
 
-  double getY(double y) {
-    final value = (maxValue - y) * scaleY + chartRect.top;
+  double getY(double value) {
+    final dy = (maxValue - value) * scaleY + chartRect.top;
     if (chartStyle.klineOverflow) {
-      return value;
+      return dy;
     }
-    return value.clamp(chartRect.top, chartRect.bottom);
+    return dy.clamp(chartRect.top, chartRect.bottom);
+  }
+
+  double getValue(double dy) {
+    return maxValue - (dy - chartRect.top) / scaleY;
   }
 
   String format(double n) {

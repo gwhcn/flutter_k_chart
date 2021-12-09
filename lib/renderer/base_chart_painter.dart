@@ -3,6 +3,7 @@ export 'package:flutter/material.dart'
     show Color, required, TextStyle, Rect, Canvas, Size, CustomPainter;
 import 'package:flutter/material.dart'
     show Color, TextStyle, Rect, Canvas, Size, CustomPainter;
+import 'package:flutter/painting.dart';
 import 'package:flutter_k_chart/utils/date_format_util.dart';
 import 'package:flutter_k_chart/utils/number_util.dart';
 import '../entity/k_line_entity.dart';
@@ -17,8 +18,10 @@ abstract class BaseChartPainter extends CustomPainter {
   MainState mainState;
   VolState volState;
   SecondaryState secondaryState;
+  CrossLine crossLine;
 
-  double scaleX = 1.0, scrollX = 0.0, selectX;
+  double scaleX = 1.0, scrollX = 0.0;
+  Offset selectPosition = Offset.zero;
   bool showSelect = false;
   bool isLine;
 
@@ -49,10 +52,11 @@ abstract class BaseChartPainter extends CustomPainter {
     required this.scaleX,
     required this.scrollX,
     required this.showSelect,
-    required this.selectX,
+    required this.selectPosition,
     this.mainState = MainState.MA,
     this.volState = VolState.VOL,
     this.secondaryState = SecondaryState.MACD,
+    this.crossLine = CrossLine.DATA,
     this.isLine = false,
   }) {
     mItemCount = datas.length;
@@ -97,7 +101,9 @@ abstract class BaseChartPainter extends CustomPainter {
       drawRightText(canvas);
       drawRealTimePrice(canvas, size);
       drawDate(canvas, size);
-      if (showSelect) drawCrossLineText(canvas, size);
+      if (showSelect) {
+        drawCrossLineText(canvas, size);
+      }
       drawText(canvas, datas.last, 5);
       drawMaxAndMin(canvas);
     }

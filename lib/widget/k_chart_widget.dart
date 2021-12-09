@@ -14,6 +14,7 @@ import 'k_chart_watermark_widget.dart';
 enum MainState { MA, BOLL, NONE }
 enum VolState { VOL, NONE }
 enum SecondaryState { MACD, KDJ, RSI, WR, NONE }
+enum CrossLine { DATA, GESTURE }
 
 class KChartWidget extends StatefulWidget {
   final List<KLineEntity> datas;
@@ -22,6 +23,7 @@ class KChartWidget extends StatefulWidget {
   final MainState mainState;
   final VolState volState;
   final SecondaryState secondaryState;
+  final CrossLine crossLine;
   final bool isLine;
   final double initialScaleX;
   final void Function(double)? onScaleXUpdated;
@@ -36,6 +38,7 @@ class KChartWidget extends StatefulWidget {
     this.mainState = MainState.MA,
     this.volState = VolState.VOL,
     this.secondaryState = SecondaryState.MACD,
+    this.crossLine = CrossLine.DATA,
     this.isLine = false,
     int fractionDigits = 2,
     this.initialScaleX = 1.0,
@@ -54,7 +57,8 @@ class _KChartWidgetState extends State<KChartWidget>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _animation;
-  double mScaleX = 1.0, mScrollX = 0.0, mSelectX = 0.0;
+  double mScaleX = 1.0, mScrollX = 0.0;
+  Offset mSelectPosition = Offset.zero;
   late StreamController<InfoWindowEntity?> mInfoWindowStream;
   double mWidth = 0;
   late AnimationController _scrollXController;
@@ -114,7 +118,8 @@ class _KChartWidgetState extends State<KChartWidget>
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.datas != widget.datas) {
-      mScrollX = mSelectX = 0.0;
+      mScrollX = 0.0;
+      mSelectPosition = Offset.zero;
       _showSelect = false;
       mInfoWindowStream.add(null);
     }
@@ -131,8 +136,9 @@ class _KChartWidgetState extends State<KChartWidget>
   @override
   Widget build(BuildContext context) {
     if (widget.datas.isEmpty) {
-      mScrollX = mSelectX = 0.0;
       mScaleX = widget.initialScaleX;
+      mScrollX = 0.0;
+      mSelectPosition = Offset.zero;
       widget.onScaleXUpdated?.call(widget.initialScaleX);
     }
 
@@ -142,11 +148,12 @@ class _KChartWidgetState extends State<KChartWidget>
       chartStyle: widget.chartStyle,
       scaleX: mScaleX,
       scrollX: mScrollX,
-      selectX: mSelectX,
+      selectPosition: mSelectPosition,
       showSelect: _showSelect,
       mainState: widget.mainState,
       volState: widget.volState,
       secondaryState: widget.secondaryState,
+      crossLine: widget.crossLine,
       isLine: widget.isLine,
       sink: mInfoWindowStream.sink,
       opacity: _animation.value,
@@ -181,8 +188,8 @@ class _KChartWidgetState extends State<KChartWidget>
         isLongPress = true;
       },
       onLongPressMoveUpdate: (details) {
-        if (mSelectX != details.localPosition.dx) {
-          mSelectX = details.localPosition.dx;
+        if (mSelectPosition != details.localPosition) {
+          mSelectPosition = details.localPosition;
           notifyChanged();
         }
       },
@@ -197,8 +204,8 @@ class _KChartWidgetState extends State<KChartWidget>
         _pointerEventSet.add(event);
 
         _showSelect = true;
-        if (mSelectX != event.localPosition.dx) {
-          mSelectX = event.localPosition.dx;
+        if (mSelectPosition != event.localPosition) {
+          mSelectPosition = event.localPosition;
           notifyChanged();
         }
 
@@ -209,7 +216,8 @@ class _KChartWidgetState extends State<KChartWidget>
 
         if (!isLongPress) {
           if (_showSelect) {
-            final distance = (event.localPosition.dx - mSelectX).abs();
+            final distance =
+                (event.localPosition - mSelectPosition).distance.abs();
             if (distance < widget.chartStyle.candleWidth) {
               // 屏蔽抖动，防止down选中之后，紧接又一个move取消选中的情况发生
               return;
