@@ -1,11 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_k_chart/flutter_k_chart.dart';
-import 'package:flutter_k_chart/generated/l10n.dart' as k_chart;
-import 'package:flutter_k_chart/k_chart_widget.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:http/http.dart' as http;
 
 void main() => runApp(MyApp());
@@ -18,9 +19,17 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      // supportedLocales: [const Locale('zh', 'CN')],
-      localizationsDelegates: [
-        k_chart.S.delegate //国际话
+      locale: const Locale.fromSubtags(languageCode: 'en'),
+      localizationsDelegates: const [
+        KChartS.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale.fromSubtags(languageCode: 'en'),
+        Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hans'),
+        Locale.fromSubtags(languageCode: 'zh', scriptCode: 'Hant'),
       ],
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -37,6 +46,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  static const _chartColors = ChartColors(
+    vCrossGradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [
+        Colors.transparent,
+        Color(0xCC68707E),
+        Color(0xFF68707E),
+        Color(0xCC68707E),
+        Colors.transparent,
+      ],
+    ),
+  );
+
   List<KLineEntity> datas = [];
   bool showLoading = true;
   MainState _mainState = MainState.MA;
@@ -101,10 +124,21 @@ class _MyHomePageState extends State<MyHomePage> {
               width: double.infinity,
               child: KChartWidget(
                 datas,
+                chartColors: _chartColors,
                 isLine: isLine,
                 mainState: _mainState,
                 secondaryState: _secondaryState,
                 volState: VolState.VOL,
+                crossLine: CrossLine.GESTURE,
+                watermark: const Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Image(
+                    color: Color(0x1A000000),
+                    colorBlendMode: BlendMode.dstIn,
+                    image: NetworkImage(
+                        'https://i-invdn-com.investing.com/ico_flags/80x80/v32/dogecoin.png'),
+                  ),
+                ),
                 fractionDigits: 4,
               ),
             ),
@@ -119,7 +153,11 @@ class _MyHomePageState extends State<MyHomePage> {
           Container(
             height: 230,
             width: double.infinity,
-            child: DepthChart(_bids, _asks),
+            child: DepthChart(
+              _bids,
+              _asks,
+              chartColors: _chartColors,
+            ),
           )
         ],
       ),

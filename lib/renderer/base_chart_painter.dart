@@ -3,21 +3,26 @@ export 'package:flutter/material.dart'
     show Color, required, TextStyle, Rect, Canvas, Size, CustomPainter;
 import 'package:flutter/material.dart'
     show Color, TextStyle, Rect, Canvas, Size, CustomPainter;
+import 'package:flutter/painting.dart';
 import 'package:flutter_k_chart/utils/date_format_util.dart';
 import 'package:flutter_k_chart/utils/number_util.dart';
 import '../entity/k_line_entity.dart';
-import '../k_chart_widget.dart';
-import '../chart_style.dart' show ChartStyle;
+import '../widget/k_chart_widget.dart';
+import '../chart_style.dart' show ChartColors, ChartStyle;
 
 abstract class BaseChartPainter extends CustomPainter {
   static double maxScrollX = 0.0;
   List<KLineEntity> datas;
+  ChartColors chartColors;
+  ChartStyle chartStyle;
   MainState mainState;
   VolState volState;
   SecondaryState secondaryState;
+  CrossLine crossLine;
 
-  double scaleX = 1.0, scrollX = 0.0, selectX;
-  bool isLongPress = false;
+  double scaleX = 1.0, scrollX = 0.0;
+  Offset selectPosition = Offset.zero;
+  bool showSelect = false;
   bool isLine;
 
   //3块区域大小与位置
@@ -36,20 +41,24 @@ abstract class BaseChartPainter extends CustomPainter {
       mMainLowMinValue = double.maxFinite;
   int mItemCount = 0;
   double mDataLen = 0.0; //数据占屏幕总长度
-  double mPointWidth = ChartStyle.pointWidth;
+  double get mPointWidth => chartStyle.pointWidth;
   List<String> mFormats = [yyyy, '-', mm, '-', dd, ' ', HH, ':', nn]; //格式化时间
   double mMarginRight = 0.0; //k线右边空出来的距离
 
-  BaseChartPainter(
-      {required this.datas,
-      required this.scaleX,
-      required this.scrollX,
-      required this.isLongPress,
-      required this.selectX,
-      this.mainState = MainState.MA,
-      this.volState = VolState.VOL,
-      this.secondaryState = SecondaryState.MACD,
-      this.isLine = false}) {
+  BaseChartPainter({
+    required this.datas,
+    required this.chartColors,
+    required this.chartStyle,
+    required this.scaleX,
+    required this.scrollX,
+    required this.showSelect,
+    required this.selectPosition,
+    this.mainState = MainState.MA,
+    this.volState = VolState.VOL,
+    this.secondaryState = SecondaryState.MACD,
+    this.crossLine = CrossLine.DATA,
+    this.isLine = false,
+  }) {
     mItemCount = datas.length;
     mDataLen = mItemCount * mPointWidth;
     initFormats();
@@ -76,9 +85,9 @@ abstract class BaseChartPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     canvas.clipRect(Rect.fromLTRB(0, 0, size.width, size.height));
     mDisplayHeight =
-        size.height - ChartStyle.topPadding - ChartStyle.bottomDateHigh;
+        size.height - chartStyle.topPadding - chartStyle.bottomDateHigh;
     mWidth = size.width;
-    mMarginRight = (mWidth / ChartStyle.gridColumns - mPointWidth) / scaleX;
+    mMarginRight = (mWidth / chartStyle.gridColumns - mPointWidth) / scaleX;
     initRect(size);
     calculateValue();
     initChartRenderer();
@@ -92,7 +101,9 @@ abstract class BaseChartPainter extends CustomPainter {
       drawRightText(canvas);
       drawRealTimePrice(canvas, size);
       drawDate(canvas, size);
-      if (isLongPress == true) drawCrossLineText(canvas, size);
+      if (showSelect) {
+        drawCrossLineText(canvas, size);
+      }
       drawText(canvas, datas.last, 5);
       drawMaxAndMin(canvas);
     }
@@ -136,15 +147,15 @@ abstract class BaseChartPainter extends CustomPainter {
       mainHeight = mDisplayHeight * 0.8;
     }
     mMainRect = Rect.fromLTRB(
-        0, ChartStyle.topPadding, mWidth, ChartStyle.topPadding + mainHeight);
+        0, chartStyle.topPadding, mWidth, chartStyle.topPadding + mainHeight);
     if (volState != VolState.NONE) {
-      mVolRect = Rect.fromLTRB(0, mMainRect.bottom + ChartStyle.childPadding,
+      mVolRect = Rect.fromLTRB(0, mMainRect.bottom + chartStyle.childPadding,
           mWidth, mMainRect.bottom + volHeight);
     }
     if (secondaryState != SecondaryState.NONE) {
       mSecondaryRect = Rect.fromLTRB(
           0,
-          (mVolRect?.bottom ?? mMainRect.bottom) + ChartStyle.childPadding,
+          (mVolRect?.bottom ?? mMainRect.bottom) + chartStyle.childPadding,
           mWidth,
           (mVolRect?.bottom ?? mMainRect.bottom) + secondaryHeight);
     }
@@ -315,7 +326,7 @@ abstract class BaseChartPainter extends CustomPainter {
       (translateX + mTranslateX) * scaleX;
 
   TextStyle getTextStyle(Color color) {
-    return TextStyle(fontSize: ChartStyle.defaultTextSize, color: color);
+    return TextStyle(fontSize: chartStyle.defaultTextSize, color: color);
   }
 
   void drawRealTimePrice(Canvas canvas, Size size);
